@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using MiniJSON;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -37,6 +40,7 @@ namespace Dataspin {
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         public Configurations configurations;
+        public List<DataspinError> dataspinErrors;
         private Configuration currentConfiguration;
 
         public Configuration CurrentConfiguration {
@@ -47,8 +51,60 @@ namespace Dataspin {
         #endregion
 
         #region Session and Player Specific Variables
-        private string authToken;
         private string uuid;
+        #endregion
+
+        #region Events
+        public static event Action OnUuidRetrieved;
+        #endregion
+
+
+        #region Requests
+
+        public void GetAuthToken() {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("secret", CurrentConfiguration.APIKey);
+
+            new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetAuthToken, HttpRequestMethod.HttpMethod_Post, parameters);
+        }
+
+        public void RegisterUser(string name = "", string surname = "", string email = "") {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("name", name);
+            parameters.Add("surname", surname);
+            parameters.Add("email", email);
+
+            new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters);
+        }
+
+
+
+
+        #endregion
+
+        #region Response Handler
+
+        public void OnRequestSuccessfullyExecuted(DataspinWebRequest request) {
+            try {
+                Dictionary<string, object> responseDict = Json.Deserialize(request.WWW.text) as Dictionary<string, object>;
+
+                switch(request.DataspinMethod) {
+                    case DataspinRequestMethod.Dataspin_RegisterUser:
+                        this.uuid = (string) responseDict["uuid"];
+                        if(OnUuidRetrieved != null) OnUuidRetrieved();
+                        LogInfo("UUID retrieved: "+this.uuid);
+                        break;
+
+                    default:
+
+                        break;
+                }
+            }
+            catch(System.Exception e) {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.JSON_PROCESSING_ERROR, e.Message, e.StackTrace));
+            }
+        }
+
         #endregion
 
 
@@ -57,8 +113,19 @@ namespace Dataspin {
             StartCoroutine(coroutineMethod);
         }
 
-        public string GetAuthHeader() {
-            return authToken;
+        public Hashtable GetAuthHeader() {
+            Hashtable headers = new Hashtable();
+            if(CurrentConfiguration.APIKey != null) {
+                headers.Add("Authorization", "Token "+currentConfiguration.APIKey);
+            }
+            else {
+                LogError("Auth_Token not supplied! Please provide it in configuration settings.");
+
+                //Debug purpouse
+                headers.Add("Authorization", "Token <auth_token_here>");
+
+            }
+            return headers;
         }
 
         public void LogInfo(string msg) {
@@ -92,12 +159,12 @@ namespace Dataspin {
 	#region Configuration Collections Class
 	public class Configuration {
 		protected const string API_VERSION = "v1";                                    // API version to use
-        protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";               // URL for sandbox configurations to make calls to
-        protected const string LIVE_BASE_URL = "http://54.247.78.173:8888";                 // URL for live configurations to mkae calls to
+        protected const string SANDBOX_BASE_URL = "http://127.0.0.1:8000";        // URL for sandbox configurations to make calls to
+        protected const string LIVE_BASE_URL = "http://54.247.78.173:8888";           // URL for live configurations to mkae calls to
 
-        protected const string AUTH_TOKEN = "/api/{0}/auth_token";
-        protected const string PLAYER_REGISTER = "/api/{0}/register_user";
-        protected const string DEVICE_REGISTER = "/api/{0}/register_user_device";
+        protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
+        protected const string PLAYER_REGISTER = "/api/{0}/register_user/";
+        protected const string DEVICE_REGISTER = "/api/{0}/register_user_device/";
 
         private const bool includeAuthHeader = false;
 
@@ -163,6 +230,7 @@ namespace Dataspin {
 	}
 
 	public enum DataspinRequestMethod {
+        Unknown = -1234,
         Dataspin_GetAuthToken = -1,
 		Dataspin_RegisterUser = 0,
 		Dataspin_RegisterUserDevice = 1
