@@ -49,6 +49,8 @@ namespace Dataspin {
         public const string version = "0.1";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
+        private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
+        private const string DEVICE_UUID_PREFERENCE_KEY = "dataspin_device_uuid";
         public Configurations configurations;
         public List<DataspinError> dataspinErrors;
         private Configuration currentConfiguration;
@@ -70,10 +72,17 @@ namespace Dataspin {
         private bool isSessionStarted;
 
         public List<DataspinItem> dataspinItems;
+        public List<DataspinCustomEvent> dataspinCustomEvents;
 
         public List<DataspinItem> Items {
             get {
                 return dataspinItems;
+            }
+        }
+
+        public List<DataspinCustomEvent> CustomEvents {
+            get {
+                return dataspinCustomEvents;
             }
         }
         #endregion
@@ -82,9 +91,9 @@ namespace Dataspin {
         public static event Action<string> OnUserRegistered;
         public static event Action<string> OnDeviceRegistered;
         public static event Action OnSessionStarted;
-        public static event Action OnItemsRetrieved;
+        public static event Action<List<DataspinItem>> OnItemsRetrieved;
         public static event Action OnEventRegistered;
-        public static event Action OnCustomEventListRetrieved;
+        public static event Action<List<DataspinCustomEvent>> OnCustomEventListRetrieved;
         #endregion
 
 
@@ -98,28 +107,48 @@ namespace Dataspin {
         }
 
         public void RegisterUser(string name = "", string surname = "", string email = "") {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters.Add("name", name);
-            parameters.Add("surname", surname);
-            parameters.Add("email", email);
+            if(!PlayerPrefs.HasKey(USER_UUID_PREFERENCE_KEY)) {
+                LogInfo("User not registered yet!");
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("name", name);
+                parameters.Add("surname", surname);
+                parameters.Add("email", email);
 
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                LogInfo("User already registered, acquiring UUID from local storage.");
+                this.uuid = PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY);
+                isUserRegistered = true;
+
+                OnUserRegistered(this.uuid); 
+            }
         }
 
         public void RegisterDevice(string notification_id = "") {
-            if(isUserRegistered) {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("end_user", uuid);
-                parameters.Add("platform", GetCurrentPlatform());
-                parameters.Add("device", GetDevice());
+            if(!PlayerPrefs.HasKey(DEVICE_UUID_PREFERENCE_KEY)) {
+                if(isUserRegistered) {
+                    LogInfo("Device not registered yet!");
+                    Dictionary<string, object> parameters = new Dictionary<string, object>();
+                    parameters.Add("end_user", uuid);
+                    parameters.Add("platform", GetCurrentPlatform());
+                    parameters.Add("device", GetDevice());
 
-                if(notification_id != "") parameters.Add("notification_id", notification_id);
+                    if(notification_id != "") parameters.Add("notification_id", notification_id);
 
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
+                    new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
+                }
+                else {
+                    dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. ", 
+                            null, DataspinRequestMethod.Dataspin_RegisterUserDevice));
+                }
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. ", 
-                        null, DataspinRequestMethod.Dataspin_RegisterUserDevice));
+                LogInfo("Device already registered, acquiring UUID from local storage.");
+                device_uuid = PlayerPrefs.GetString(DEVICE_UUID_PREFERENCE_KEY);
+                isDeviceRegistered = true;
+
+                OnDeviceRegistered(this.device_uuid);
             }
         }
 
@@ -137,6 +166,36 @@ namespace Dataspin {
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. ", 
                         null, DataspinRequestMethod.Dataspin_StartSession));
+            }
+        }
+
+        public void RegisterCustomEvent(string custom_event, string extraData = null) {
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("custom_event", custom_event);
+                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                if(extraData != null) parameters.Add("data", extraData);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
+                        null, DataspinRequestMethod.Dataspin_RegisterEvent));
+            }
+        }
+
+        public void PurchaseItem(string item, int amount = 1) {
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("item", item);
+                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                if(amount != 1) parameters.Add("amount", amount);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
+                        null, DataspinRequestMethod.Dataspin_PurchaseItem));
             }
         }
 
@@ -176,6 +235,7 @@ namespace Dataspin {
                     switch(request.DataspinMethod) {
                         case DataspinRequestMethod.Dataspin_RegisterUser:
                             this.uuid = (string) responseDict["uuid"];
+                            PlayerPrefs.SetString(USER_UUID_PREFERENCE_KEY, this.uuid);
                             isUserRegistered = true;
                             if(OnUserRegistered != null) OnUserRegistered(this.uuid);
                             LogInfo("User Registered! UUID: "+this.uuid);
@@ -183,6 +243,7 @@ namespace Dataspin {
 
                         case DataspinRequestMethod.Dataspin_RegisterUserDevice:
                             this.device_uuid = (string) responseDict["uuid"];
+                            PlayerPrefs.SetString(DEVICE_UUID_PREFERENCE_KEY, this.device_uuid);
                             isDeviceRegistered = true;
                             if(OnDeviceRegistered != null) OnDeviceRegistered(this.device_uuid);
                             LogInfo("Device registered! UUID: "+this.device_uuid);
@@ -201,8 +262,19 @@ namespace Dataspin {
                                 Dictionary<string, object> itemDict = (Dictionary<string, object>) items[i];
                                 dataspinItems.Add(new DataspinItem(itemDict));
                             }
-                            if(OnItemsRetrieved != null) OnItemsRetrieved();
+                            if(OnItemsRetrieved != null) OnItemsRetrieved(dataspinItems);
                             LogInfo("Items list retrieved: "+request.Response);
+                            break;
+
+                        case DataspinRequestMethod.Dataspin_GetCustomEvents:
+                            dataspinCustomEvents = new List<DataspinCustomEvent>();
+                            List<object> events = (List<object>) responseDict["results"];
+                            for(int i = 0; i < events.Count; i++) {
+                                Dictionary<string, object> eventDict = (Dictionary<string, object>) events[i];
+                                dataspinCustomEvents.Add(new DataspinCustomEvent(eventDict));
+                            }
+                            if(OnCustomEventListRetrieved != null) OnCustomEventListRetrieved(dataspinCustomEvents);
+                            LogInfo("Custom events list retrieved: "+request.Response);
                             break;
 
                         default:

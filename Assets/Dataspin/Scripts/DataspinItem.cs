@@ -63,6 +63,10 @@ namespace Dataspin {
 			}
 		}
 
+		public override string ToString() {
+			return "Id: "+id+", Internal Id: "+internal_id+", Name: "+long_name+", Price: "+price+", IsCoinpack? "+isCoinpack;
+		}
+
 	}
 }
 

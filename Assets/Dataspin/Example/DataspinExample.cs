@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using Dataspin; //Include this in order to use Dataspin SDK in your scripts
 
 public class DataspinExample : MonoBehaviour {
@@ -9,6 +10,12 @@ public class DataspinExample : MonoBehaviour {
 	public Text statusText;
 	public Text uuidText;
 	public Text deviceUuidText;
+	public Text logText;
+
+	public InputField itemAmountField;
+	public InputField itemNameField;
+	public InputField customEventNameField;
+	public InputField customEventData;
 
 	public Button startSessionButton;
 	public GameObject sessionActions;
@@ -32,7 +39,6 @@ public class DataspinExample : MonoBehaviour {
 	//On Start we Register User
 	void Start () {
 		sessionActions.SetActive(false);
-		startSessionButton.interactable = false;
 		statusText.text = "Offline";
 		configText.text = "Current config: "+DataspinManager.Instance.CurrentConfiguration.ToString();
 		DataspinManager.Instance.RegisterUser();
@@ -54,6 +60,14 @@ public class DataspinExample : MonoBehaviour {
 		Application.LoadLevel(Application.loadedLevel);
 	}
 
+	public void PurchaseItem() {
+		DataspinManager.Instance.PurchaseItem(itemNameField.text);
+	}
+
+	public void RegisterCustomEvent() {
+		DataspinManager.Instance.RegisterCustomEvent(customEventNameField.text, customEventData.text);
+	}
+
 	#region Listeners
 	private void OnUserRegistered(string uuid) {
 		statusText.text = "User registered, session not started";
@@ -71,15 +85,22 @@ public class DataspinExample : MonoBehaviour {
 	private void OnSessionStarted() {
 		statusText.text = "Session Started - All OK";
 		sessionActions.SetActive(true);
-		//DataspinManager.Instance.RegisterDevice();
 	}
 
-	private void OnItemsRetrieved() {
-		//DataspinManager.Instance.RegisterDevice();
+	private void OnItemsRetrieved(List<DataspinItem> dataspinItemsList) {
+		Debug.Log("OnItemsRetrieved: "+dataspinItemsList.Count);
+		logText.text = "";
+		for(int i = 0; i < dataspinItemsList.Count; i++) {
+			logText.text += dataspinItemsList[i].ToString();
+		}
 	}
 
-	private void OnCustomEventListRetrieved() {
-		//DataspinManager.Instance.RegisterDevice();
+	private void OnCustomEventListRetrieved(List<DataspinCustomEvent> dataspinEventsList) {
+		Debug.Log("OnCustomEventListRetrieved: "+dataspinEventsList.Count);
+		logText.text = "";
+		for(int i = 0; i < dataspinEventsList.Count; i++) {
+			logText.text += dataspinEventsList[i].ToString();
+		}
 	}
 	#endregion
 }
