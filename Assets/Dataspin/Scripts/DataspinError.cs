@@ -5,10 +5,10 @@ namespace Dataspin {
 	[System.Serializable]
 	public class DataspinError {
 
-		private ErrorTypeEnum errorType;
-		private string message;
-		private string stackTrace;
-		private DataspinRequestMethod requestMethod;
+		public ErrorTypeEnum errorType;
+		public string message;
+		public string stackTrace;
+		public DataspinRequestMethod requestMethod;
 
 		public enum ErrorTypeEnum {
 			UNKNOWN_ERROR = 0,

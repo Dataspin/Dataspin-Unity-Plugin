@@ -8,6 +8,7 @@ public class DataspinExample : MonoBehaviour {
 	public Text configText;
 	public Text statusText;
 	public Text uuidText;
+	public Text deviceUuidText;
 
 	public Button startSessionButton;
 	public GameObject sessionActions;
@@ -60,10 +61,11 @@ public class DataspinExample : MonoBehaviour {
 		uuidText.text = "UUID: "+uuid;
 	}
 
-	private void OnDeviceRegistered() {
+	private void OnDeviceRegistered(string uuid) {
 		//DataspinManager.Instance.RegisterDevice();
 		statusText.text = "User & device registered, session not started";
 		startSessionButton.interactable = true;
+		deviceUuidText.text = "Device UUID: "+uuid;
 	}
 
 	private void OnSessionStarted() {

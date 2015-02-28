@@ -68,11 +68,19 @@ namespace Dataspin {
         private bool isUserRegistered;
         private bool isDeviceRegistered;
         private bool isSessionStarted;
+
+        public List<DataspinItem> dataspinItems;
+
+        public List<DataspinItem> Items {
+            get {
+                return dataspinItems;
+            }
+        }
         #endregion
 
         #region Events
         public static event Action<string> OnUserRegistered;
-        public static event Action OnDeviceRegistered;
+        public static event Action<string> OnDeviceRegistered;
         public static event Action OnSessionStarted;
         public static event Action OnItemsRetrieved;
         public static event Action OnEventRegistered;
@@ -118,10 +126,13 @@ namespace Dataspin {
         public void StartSession() {
             if(isDeviceRegistered && !isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("end_user_device", device_uuid); //TODO: fix
+                parameters.Add("end_user_device", device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
 
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else if(isSessionStarted) {
+                LogInfo("Session already in progress! No need to call new one.");
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. ", 
@@ -130,8 +141,11 @@ namespace Dataspin {
         }
 
         public void GetItems() {
-            if(isSessionStarted)
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get);
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters);
+            }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
                         null, DataspinRequestMethod.Dataspin_GetItems));
@@ -139,8 +153,11 @@ namespace Dataspin {
         }
 
         public void GetCustomEvents() {
-            if(isSessionStarted)
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get);
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters);
+            }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
                         null, DataspinRequestMethod.Dataspin_GetCustomEvents));
@@ -167,7 +184,7 @@ namespace Dataspin {
                         case DataspinRequestMethod.Dataspin_RegisterUserDevice:
                             this.device_uuid = (string) responseDict["uuid"];
                             isDeviceRegistered = true;
-                            if(OnDeviceRegistered != null) OnDeviceRegistered();
+                            if(OnDeviceRegistered != null) OnDeviceRegistered(this.device_uuid);
                             LogInfo("Device registered! UUID: "+this.device_uuid);
                             break;
 
@@ -178,6 +195,12 @@ namespace Dataspin {
                             break;
 
                         case DataspinRequestMethod.Dataspin_GetItems:
+                            dataspinItems = new List<DataspinItem>();
+                            List<object> items = (List<object>) responseDict["results"];
+                            for(int i = 0; i < items.Count; i++) {
+                                Dictionary<string, object> itemDict = (Dictionary<string, object>) items[i];
+                                dataspinItems.Add(new DataspinItem(itemDict));
+                            }
                             if(OnItemsRetrieved != null) OnItemsRetrieved();
                             LogInfo("Items list retrieved: "+request.Response);
                             break;
@@ -265,6 +288,10 @@ namespace Dataspin {
             }
         }
 
+        public void AddError(DataspinError.ErrorTypeEnum errorType, string message, string stackTrace = null, DataspinRequestMethod requestMethod = DataspinRequestMethod.Unknown) {
+            dataspinErrors.Add(new DataspinError(errorType, message, stackTrace, requestMethod));
+        }
+
         public void LogInfo(string msg) {
             if(currentConfiguration.logDebug) Debug.Log(logTag + ": " + msg);
         }
@@ -304,9 +331,9 @@ namespace Dataspin {
         protected const string DEVICE_REGISTER = "/api/{0}/register_user_device/";
         protected const string START_SESSION = "/api/{0}/start_session/";
         protected const string REGISTER_EVENT = "/api/{0}/register_event/";
-        protected const string GET_EVENTS = "/api/{0}/custom_events/";
         protected const string PURCHASE_ITEM = "/api/{0}/purchase/";
 
+        protected const string GET_EVENTS = "/api/{0}/custom_events/";
         protected const string GET_ITEMS = "/api/{0}/items/";
         protected const string GET_PLATFORMS = "/api/{0}/platforms/";
 
@@ -357,6 +384,22 @@ namespace Dataspin {
             return BaseUrl + System.String.Format(GET_ITEMS, API_VERSION);
         }
 
+        private string GetCurrentPlatform() {
+            #if UNITY_EDITOR
+                return "Editor";    
+            #elif UNITY_ANDROID
+                return "Android";
+            #elif UNITY_IPHONE
+                return "iOS";
+            #elif UNITY_WEBPLAYER
+                return "Webplayer";
+            #elif UNITY_METRO || UNITY_WP8 || UNITY_WINRT || UNITY_STANDALONE_WIN
+                return "Windows";
+            #else 
+                return "unknown";
+            #endif
+        }
+
         public string GetMethodCorrespondingURL(DataspinRequestMethod dataspinMethod) {
             switch(dataspinMethod) {
                 case DataspinRequestMethod.Dataspin_GetAuthToken:
@@ -383,7 +426,7 @@ namespace Dataspin {
         }
 
         public override string ToString() {
-            return AppName + " " + AppVersion + ", APIKey: "+APIKey+", SandboxMode? "+sandboxMode;
+            return AppName + " " + AppVersion + ", Platform: "+ GetCurrentPlatform() +", APIKey: "+APIKey+", SandboxMode? "+sandboxMode;
         }
 	}
 

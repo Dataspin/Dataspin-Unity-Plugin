@@ -63,8 +63,14 @@ namespace Dataspin {
 			}
 			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
 				Hashtable postHeader = new Hashtable();
-				//postHeader.Add("Content-Type", "application/json");
 				postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
+
+				int counter = 0;
+				foreach(KeyValuePair<string, object> kvp in postData) {
+					if(counter == 0) url += "?" + kvp.Key + "=" + WWW.EscapeURL((string)kvp.Value.ToString());
+					else url += "&" + kvp.Key + "=" + kvp.Value;
+					counter++;
+				}
 
 				this.www = new WWW(this.url, null, postHeader);
 			}
