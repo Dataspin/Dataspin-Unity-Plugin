@@ -1,0 +1,16 @@
+<linker>
+    <assembly fullname="mscorlib">
+        <!-- fixes System.NotSupportedException in FlickrNet.Flickr.OAuthCalculateSignature using System_Security.Cryptography.HashAlgorithm.ComputeHash -->
+        <namespace fullname="System.Security.Cryptography" preserve="all"/>
+    </assembly>
+    <assembly fullname="System">
+        <!-- fixes System.NotSupportedException in FlickrNet.Flickr.UploadData using System.Net.WebRequest.Create -->
+        <type fullname="System.Net.Configuration.WebRequestModuleHandler" preserve="all"/>
+        <type fullname="System.Net.HttpRequestCreator" preserve="all"/>
+        <type fullname="System.Net.FileWebRequestCreator" preserve="all"/>
+    </assembly>
+    <assembly fullname="FlickrNet">
+        <!-- fixes System.MissingMethodException in FlickrNet.Flickr.GetResponseNoCache using System.Activator.CreateInstance -->
+        <namespace fullname="FlickrNet" preserve="all"/>
+    </assembly>
+</linker>

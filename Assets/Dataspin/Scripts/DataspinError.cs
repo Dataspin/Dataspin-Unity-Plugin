@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace Dataspin {
-	public class DataspinError : MonoBehaviour {
+	public class DataspinError {
 
 		private ErrorTypeEnum errorType;
 		private string message;
@@ -12,7 +12,12 @@ namespace Dataspin {
 		public enum ErrorTypeEnum {
 			UNKNOWN_ERROR = 0,
 			JSON_PROCESSING_ERROR = 1,
-			CONNECTION_ERROR = 2
+			CONNECTION_ERROR = 2,
+			API_KEY_NOT_PROVIDED = 3,
+			UNRECOGNIZED_PLATFORM = 4,
+			CORRESPONDING_URL_MISSING = 5,
+			USER_NOT_REGISTERED = 6,
+			INTERNET_NOTREACHABLE = 7
 		}
 
 		public ErrorTypeEnum ErrorType {
@@ -43,7 +48,8 @@ namespace Dataspin {
 		}
 
 		public override string ToString() {
-			return "[DataspinError]: " + errorType.ToString() + " - " + message + ", Stack Trace: "+stackTrace;
+			return "[DataspinError] while executing "+requestMethod.ToString() +"Error type: " + errorType.ToString() + 
+			" - " + message + ", Stack Trace: "+stackTrace;
 		}
 	}
 }
