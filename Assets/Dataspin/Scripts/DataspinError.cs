@@ -2,6 +2,7 @@
 using System.Collections;
 
 namespace Dataspin {
+	[System.Serializable]
 	public class DataspinError {
 
 		private ErrorTypeEnum errorType;
@@ -17,7 +18,8 @@ namespace Dataspin {
 			UNRECOGNIZED_PLATFORM = 4,
 			CORRESPONDING_URL_MISSING = 5,
 			USER_NOT_REGISTERED = 6,
-			INTERNET_NOTREACHABLE = 7
+			INTERNET_NOTREACHABLE = 7,
+			SESSION_NOT_STARTED = 8,
 		}
 
 		public ErrorTypeEnum ErrorType {

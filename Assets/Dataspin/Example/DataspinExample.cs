@@ -9,6 +9,9 @@ public class DataspinExample : MonoBehaviour {
 	public Text statusText;
 	public Text uuidText;
 
+	public Button startSessionButton;
+	public GameObject sessionActions;
+
 	private void OnEnable() { //Subscribe to desired events
 		DataspinManager.OnUserRegistered += OnUserRegistered;
 		DataspinManager.OnDeviceRegistered += OnDeviceRegistered;
@@ -27,6 +30,8 @@ public class DataspinExample : MonoBehaviour {
 
 	//On Start we Register User
 	void Start () {
+		sessionActions.SetActive(false);
+		startSessionButton.interactable = false;
 		statusText.text = "Offline";
 		configText.text = "Current config: "+DataspinManager.Instance.CurrentConfiguration.ToString();
 		DataspinManager.Instance.RegisterUser();
@@ -44,6 +49,10 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.Instance.GetCustomEvents();
 	}
 
+	public void ReloadScene() {
+		Application.LoadLevel(Application.loadedLevel);
+	}
+
 	#region Listeners
 	private void OnUserRegistered(string uuid) {
 		statusText.text = "User registered, session not started";
@@ -54,10 +63,12 @@ public class DataspinExample : MonoBehaviour {
 	private void OnDeviceRegistered() {
 		//DataspinManager.Instance.RegisterDevice();
 		statusText.text = "User & device registered, session not started";
+		startSessionButton.interactable = true;
 	}
 
 	private void OnSessionStarted() {
 		statusText.text = "Session Started - All OK";
+		sessionActions.SetActive(true);
 		//DataspinManager.Instance.RegisterDevice();
 	}
 

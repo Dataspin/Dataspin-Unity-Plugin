@@ -18,7 +18,6 @@ namespace Dataspin {
 
 
 		private WWW www;
-		private WWWForm form;
 
 		public WWW WWW {
 			get {
@@ -28,6 +27,8 @@ namespace Dataspin {
 
 		public string Response {
 			get {
+				if(www.text.Length < 2)
+					return "{}";
 				return www.text;
 			}
 		}
@@ -48,7 +49,7 @@ namespace Dataspin {
 
 			if(httpMethod == HttpRequestMethod.HttpMethod_Post) {
 				if(dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) {
-					this.stringPostData = Json.Serialize(postData);
+					this.stringPostData = Json.Serialize(this.postData);
 
 					Hashtable postHeader = new Hashtable();
 					postHeader.Add("Content-Type", "application/json");
@@ -58,19 +59,14 @@ namespace Dataspin {
 					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
 				}
 				else 
-					this.www = new WWW(this.url, this.form);
+					this.www = new WWW(this.url, new WWWForm());
 			}
 			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
-				/*
-				this.stringPostData = Json.Serialize(postData);
-
 				Hashtable postHeader = new Hashtable();
-				postHeader.Add("Content-Type", "application/json");
-				postHeader.Add("Content-Length", stringPostData.Length);
+				//postHeader.Add("Content-Type", "application/json");
 				postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
-				*/
 
-				this.www = new WWW(this.url);
+				this.www = new WWW(this.url, null, postHeader);
 			}
 
 			DataspinManager.Instance.StartChildCoroutine(ExecuteRequest());

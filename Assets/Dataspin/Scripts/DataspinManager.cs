@@ -28,6 +28,14 @@ namespace Dataspin {
         }
 
         private void Awake() {
+            if(isDataspinEstablished == true) {
+                Debug.Log("Dataspin prefab already detected in scene, deleting new instance!");
+                Destroy(this.gameObject);
+            }
+            else isDataspinEstablished = true;
+
+            DontDestroyOnLoad(this.gameObject); //Persist all scene loads and unloads
+
             dataspinErrors = new List<DataspinError>();
 
             if(this.gameObject.name != prefabName) this.gameObject.name = prefabName;
@@ -38,7 +46,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "1.3.0b1";
+        public const string version = "0.1";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         public Configurations configurations;
@@ -53,7 +61,13 @@ namespace Dataspin {
         #endregion
 
         #region Session and Player Specific Variables
+        public static bool isDataspinEstablished;
         private string uuid;
+        private string device_uuid;
+
+        private bool isUserRegistered;
+        private bool isDeviceRegistered;
+        private bool isSessionStarted;
         #endregion
 
         #region Events
@@ -85,40 +99,59 @@ namespace Dataspin {
         }
 
         public void RegisterDevice(string notification_id = "") {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            if(uuid == null) {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. ", 
-                    null, DataspinRequestMethod.Dataspin_RegisterUserDevice));
+            if(isUserRegistered) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("end_user", uuid);
+                parameters.Add("platform", GetCurrentPlatform());
+                parameters.Add("device", GetDevice());
+
+                if(notification_id != "") parameters.Add("notification_id", notification_id);
+
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
             }
-            parameters.Add("end_user", uuid);
-            parameters.Add("platform", GetCurrentPlatform());
-            parameters.Add("device", GetDevice());
-
-            if(notification_id != "") parameters.Add("notification_id", notification_id);
-
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. ", 
+                        null, DataspinRequestMethod.Dataspin_RegisterUserDevice));
+            }
         }
 
         public void StartSession() {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters.Add("end_user_device", uuid); //TODO: fix
-            parameters.Add("app_version", CurrentConfiguration.AppVersion);
+            if(isDeviceRegistered && !isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("end_user_device", device_uuid); //TODO: fix
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
 
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. ", 
+                        null, DataspinRequestMethod.Dataspin_StartSession));
+            }
         }
 
         public void GetItems() {
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get);
+            if(isSessionStarted)
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get);
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
+                        null, DataspinRequestMethod.Dataspin_GetItems));
+            }
         }
 
         public void GetCustomEvents() {
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get);
+            if(isSessionStarted)
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get);
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
+                        null, DataspinRequestMethod.Dataspin_GetCustomEvents));
+            }
         }
         #endregion
 
         #region Response Handler
 
         public void OnRequestSuccessfullyExecuted(DataspinWebRequest request) {
+            LogInfo("Processing request "+request.DataspinMethod.ToString() +", Response: "+request.Response+".");
             try {
                 Dictionary<string, object> responseDict = Json.Deserialize(request.Response) as Dictionary<string, object>;
 
@@ -126,16 +159,20 @@ namespace Dataspin {
                     switch(request.DataspinMethod) {
                         case DataspinRequestMethod.Dataspin_RegisterUser:
                             this.uuid = (string) responseDict["uuid"];
+                            isUserRegistered = true;
                             if(OnUserRegistered != null) OnUserRegistered(this.uuid);
-                            LogInfo("UUID retrieved: "+this.uuid);
+                            LogInfo("User Registered! UUID: "+this.uuid);
                             break;
 
                         case DataspinRequestMethod.Dataspin_RegisterUserDevice:
+                            this.device_uuid = (string) responseDict["uuid"];
+                            isDeviceRegistered = true;
                             if(OnDeviceRegistered != null) OnDeviceRegistered();
-                            LogInfo("Device registered succesfully!");
+                            LogInfo("Device registered! UUID: "+this.device_uuid);
                             break;
 
                         case DataspinRequestMethod.Dataspin_StartSession:
+                            isSessionStarted = true;
                             if(OnSessionStarted != null) OnSessionStarted();
                             LogInfo("Session started!");
                             break;
@@ -186,6 +223,7 @@ namespace Dataspin {
                 return SystemInfo.deviceModel.Substring(0, SystemInfo.deviceModel.IndexOf(' '));
             }
             catch(Exception e) {
+                LogInfo("Couldn't determine device manufacturer, probably space in SystemInfo.deviceModel missing. Message: "+e.Message);
                 return "Unknown";
             }
         }
