@@ -47,6 +47,7 @@ namespace Dataspin {
 			this.requestMethod = requestMethod;
 
 			DataspinManager.Instance.LogError(this.ToString());
+			DataspinManager.Instance.FireErrorEvent(this);
 		}
 
 		public override string ToString() {

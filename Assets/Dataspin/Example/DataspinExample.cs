@@ -13,9 +13,12 @@ public class DataspinExample : MonoBehaviour {
 	public Text logText;
 
 	public InputField itemAmountField;
-	public InputField itemNameField;
-	public InputField customEventNameField;
 	public InputField customEventData;
+	public ComboBox comboItemsBox;
+	public ComboBox comboEventsBox;
+
+	public Button comboItemsButton;
+	public Button comboEventsButton;
 
 	public Button startSessionButton;
 	public GameObject sessionActions;
@@ -25,7 +28,9 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnDeviceRegistered += OnDeviceRegistered;
 		DataspinManager.OnSessionStarted += OnSessionStarted;
 		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
+		DataspinManager.OnEventRegistered += OnEventRegistered;
 		DataspinManager.OnCustomEventListRetrieved += OnCustomEventListRetrieved;
+		DataspinManager.OnErrorOccured += OnErrorOccured;
 	}
 
 	private void OnDisable() { //Unsubscribe after game quit/scene reload etc.
@@ -33,7 +38,9 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnDeviceRegistered -= OnDeviceRegistered;
 		DataspinManager.OnSessionStarted -= OnSessionStarted;
 		DataspinManager.OnItemsRetrieved -= OnItemsRetrieved;
+		DataspinManager.OnEventRegistered -= OnEventRegistered;
 		DataspinManager.OnCustomEventListRetrieved -= OnCustomEventListRetrieved;
+		DataspinManager.OnErrorOccured -= OnErrorOccured;
 	}
 
 	//On Start we Register User
@@ -61,11 +68,18 @@ public class DataspinExample : MonoBehaviour {
 	}
 
 	public void PurchaseItem() {
-		DataspinManager.Instance.PurchaseItem(itemNameField.text);
+		if(itemAmountField.text.Length > 0) {
+			int amount = int.Parse(itemAmountField.text);
+			DataspinManager.Instance.PurchaseItem(comboItemsBox.selected.textComponent.text, amount);
+		}
+		else {
+			DataspinManager.Instance.PurchaseItem(comboItemsBox.selected.textComponent.text);
+		}
 	}
 
 	public void RegisterCustomEvent() {
-		DataspinManager.Instance.RegisterCustomEvent(customEventNameField.text, customEventData.text);
+		DataspinCustomEvent ev = DataspinManager.Instance.FindEventByName(comboEventsBox.selected.textComponent.text);
+		DataspinManager.Instance.RegisterCustomEvent(ev.Id, customEventData.text);
 	}
 
 	#region Listeners
@@ -73,6 +87,10 @@ public class DataspinExample : MonoBehaviour {
 		statusText.text = "User registered, session not started";
 		DataspinManager.Instance.RegisterDevice();
 		uuidText.text = "UUID: "+uuid;
+	}
+
+	private void OnEventRegistered() {
+		logText.text = "Event registered!";
 	}
 
 	private void OnDeviceRegistered(string uuid) {
@@ -91,16 +109,24 @@ public class DataspinExample : MonoBehaviour {
 		Debug.Log("OnItemsRetrieved: "+dataspinItemsList.Count);
 		logText.text = "";
 		for(int i = 0; i < dataspinItemsList.Count; i++) {
-			logText.text += dataspinItemsList[i].ToString();
+			logText.text += dataspinItemsList[i].ToString() + "\n";
+			comboItemsBox.AddItem(dataspinItemsList[i].FullName);
 		}
+		comboItemsButton.interactable = true;
 	}
 
 	private void OnCustomEventListRetrieved(List<DataspinCustomEvent> dataspinEventsList) {
 		Debug.Log("OnCustomEventListRetrieved: "+dataspinEventsList.Count);
 		logText.text = "";
 		for(int i = 0; i < dataspinEventsList.Count; i++) {
-			logText.text += dataspinEventsList[i].ToString();
+			logText.text += dataspinEventsList[i].ToString() + "\n";	
+			comboEventsBox.AddItem(dataspinEventsList[i].Name);
 		}
+		comboEventsButton.interactable = true;
+	}
+
+	private void OnErrorOccured(DataspinError error) {
+		logText.text = error.ToString();
 	}
 	#endregion
 }

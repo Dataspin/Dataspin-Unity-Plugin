@@ -94,6 +94,8 @@ namespace Dataspin {
         public static event Action<List<DataspinItem>> OnItemsRetrieved;
         public static event Action OnEventRegistered;
         public static event Action<List<DataspinCustomEvent>> OnCustomEventListRetrieved;
+
+        public static event Action<DataspinError> OnErrorOccured;
         #endregion
 
 
@@ -184,10 +186,10 @@ namespace Dataspin {
             }
         }
 
-        public void PurchaseItem(string item, int amount = 1) {
+        public void PurchaseItem(string item_name, int amount = 1) {
             if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("item", item);
+                parameters.Add("item", FindItemByName(item_name).InternalId);
                 parameters.Add("end_user_device", device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 if(amount != 1) parameters.Add("amount", amount);
@@ -298,6 +300,36 @@ namespace Dataspin {
             StartCoroutine(coroutineMethod);
         }
 
+        public DataspinItem FindItemByName(string name) {
+            for(int i = 0; i < dataspinItems.Count; i++) {
+                if(dataspinItems[i].FullName == name) return dataspinItems[i];
+            }
+
+            LogInfo("DataspinItem "+name+" not found!");
+
+            return null;
+        }
+
+        public DataspinItem FindItemById(string id) {
+             for(int i = 0; i < dataspinItems.Count; i++) {
+                if(dataspinItems[i].InternalId == id) return dataspinItems[i];
+            }
+
+            LogInfo("DataspinItem with id "+id+" not found!");
+
+            return null;
+        }
+
+        public DataspinCustomEvent FindEventByName(string name) {
+             for(int i = 0; i < dataspinCustomEvents.Count; i++) {
+                if(dataspinCustomEvents[i].Name == name) return dataspinCustomEvents[i];
+            }
+
+            LogInfo("dataspinEvents with name "+name+" not found!");
+
+            return null;
+        }
+
         private Dictionary<string, object> GetDevice() {
             Dictionary<string, object> deviceDictionary = new Dictionary<string, object>();
             deviceDictionary.Add("manufacturer", GetDeviceManufacturer());
@@ -370,6 +402,10 @@ namespace Dataspin {
 
         public void LogError(string msg) {
             if(currentConfiguration.logDebug) Debug.LogError(logTag + ": " + msg);
+        }
+
+        public void FireErrorEvent(DataspinError err) {
+            OnErrorOccured(err);
         }
 
         private Configuration getCurrentConfiguration() {
