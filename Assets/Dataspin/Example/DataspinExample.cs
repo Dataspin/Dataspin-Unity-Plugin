@@ -27,9 +27,10 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnUserRegistered += OnUserRegistered;
 		DataspinManager.OnDeviceRegistered += OnDeviceRegistered;
 		DataspinManager.OnSessionStarted += OnSessionStarted;
-		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
 		DataspinManager.OnEventRegistered += OnEventRegistered;
-		DataspinManager.OnCustomEventListRetrieved += OnCustomEventListRetrieved;
+		DataspinManager.OnItemPurchased += OnItemPurchased;
+		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
+		DataspinManager.OnCustomEventsRetrieved += OnCustomEventsRetrieved;
 		DataspinManager.OnErrorOccured += OnErrorOccured;
 	}
 
@@ -39,7 +40,7 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnSessionStarted -= OnSessionStarted;
 		DataspinManager.OnItemsRetrieved -= OnItemsRetrieved;
 		DataspinManager.OnEventRegistered -= OnEventRegistered;
-		DataspinManager.OnCustomEventListRetrieved -= OnCustomEventListRetrieved;
+		DataspinManager.OnCustomEventsRetrieved -= OnCustomEventsRetrieved;
 		DataspinManager.OnErrorOccured -= OnErrorOccured;
 	}
 
@@ -89,10 +90,6 @@ public class DataspinExample : MonoBehaviour {
 		uuidText.text = "UUID: "+uuid;
 	}
 
-	private void OnEventRegistered() {
-		logText.text = "Event registered!";
-	}
-
 	private void OnDeviceRegistered(string uuid) {
 		//DataspinManager.Instance.RegisterDevice();
 		statusText.text = "User & device registered, session not started";
@@ -105,6 +102,14 @@ public class DataspinExample : MonoBehaviour {
 		sessionActions.SetActive(true);
 	}
 
+	private void OnEventRegistered() {
+		logText.text = "Event registered!";
+	}
+
+	private void OnItemPurchased(DataspinItem item) {
+		Debug.Log("OnItemPurchased: "+item.ToString());
+	}
+
 	private void OnItemsRetrieved(List<DataspinItem> dataspinItemsList) {
 		Debug.Log("OnItemsRetrieved: "+dataspinItemsList.Count);
 		logText.text = "";
@@ -115,8 +120,8 @@ public class DataspinExample : MonoBehaviour {
 		comboItemsButton.interactable = true;
 	}
 
-	private void OnCustomEventListRetrieved(List<DataspinCustomEvent> dataspinEventsList) {
-		Debug.Log("OnCustomEventListRetrieved: "+dataspinEventsList.Count);
+	private void OnCustomEventsRetrieved(List<DataspinCustomEvent> dataspinEventsList) {
+		Debug.Log("OnCustomEventsRetrieved: "+dataspinEventsList.Count);
 		logText.text = "";
 		for(int i = 0; i < dataspinEventsList.Count; i++) {
 			logText.text += dataspinEventsList[i].ToString() + "\n";	

@@ -33,6 +33,12 @@ namespace Dataspin {
 			}
 		}
 
+		public Dictionary<string,object> PostData {
+			get {
+				return postData;
+			}
+		}
+
 		public DataspinRequestMethod DataspinMethod {
 			get {
 				return dataspinMethod;

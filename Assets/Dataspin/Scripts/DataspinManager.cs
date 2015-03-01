@@ -5,26 +5,32 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Dataspin {
-	public class DataspinManager : MonoBehaviour {
 
-		#region Singleton
+//////////////////////////////////////////////////////////////////
+/// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
+/// Version 0.11
+//////////////////////////////////////////////////////////////////
+
+namespace Dataspin {
+    public class DataspinManager : MonoBehaviour {
+
+        #region Singleton
         /// Ensure that there is no constructor. This exists only for singleton use.
         protected DataspinManager() {}
 
         private static DataspinManager _instance;
         public static DataspinManager Instance {
-        	get {
-        		if(_instance == null) {
-        			GameObject g = GameObject.Find(prefabName);
-        			if(g == null) {
-        				g = new GameObject(prefabName);
-        				g.AddComponent<DataspinManager>();
-        			}
-        			_instance = g.GetComponent<DataspinManager>();
-        		}
-        		return _instance;
-        	}
+            get {
+                if(_instance == null) {
+                    GameObject g = GameObject.Find(prefabName);
+                    if(g == null) {
+                        g = new GameObject(prefabName);
+                        g.AddComponent<DataspinManager>();
+                    }
+                    _instance = g.GetComponent<DataspinManager>();
+                }
+                return _instance;
+            }
         }
 
         private void Awake() {
@@ -91,9 +97,10 @@ namespace Dataspin {
         public static event Action<string> OnUserRegistered;
         public static event Action<string> OnDeviceRegistered;
         public static event Action OnSessionStarted;
-        public static event Action<List<DataspinItem>> OnItemsRetrieved;
         public static event Action OnEventRegistered;
-        public static event Action<List<DataspinCustomEvent>> OnCustomEventListRetrieved;
+        public static event Action<DataspinItem> OnItemPurchased;
+        public static event Action<List<DataspinItem>> OnItemsRetrieved;
+        public static event Action<List<DataspinCustomEvent>> OnCustomEventsRetrieved;
 
         public static event Action<DataspinError> OnErrorOccured;
         #endregion
@@ -257,6 +264,12 @@ namespace Dataspin {
                             LogInfo("Session started!");
                             break;
 
+                        case DataspinRequestMethod.Dataspin_PurchaseItem:
+                            DataspinItem item = FindItemById((string) request.PostData["item"]);
+                            if(OnItemPurchased != null) OnItemPurchased(item);
+                            LogInfo("Item "+ item.FullName +" purchased.");
+                            break;
+
                         case DataspinRequestMethod.Dataspin_GetItems:
                             dataspinItems = new List<DataspinItem>();
                             List<object> items = (List<object>) responseDict["results"];
@@ -275,7 +288,7 @@ namespace Dataspin {
                                 Dictionary<string, object> eventDict = (Dictionary<string, object>) events[i];
                                 dataspinCustomEvents.Add(new DataspinCustomEvent(eventDict));
                             }
-                            if(OnCustomEventListRetrieved != null) OnCustomEventListRetrieved(dataspinCustomEvents);
+                            if(OnCustomEventsRetrieved != null) OnCustomEventsRetrieved(dataspinCustomEvents);
                             LogInfo("Custom events list retrieved: "+request.Response);
                             break;
 
@@ -425,12 +438,12 @@ namespace Dataspin {
             #endif
         }
         #endregion
-	}
+    }
 
-	[System.Serializable]
-	#region Configuration Collections Class
-	public class Configuration {
-		protected const string API_VERSION = "v1";                                    // API version to use
+    [System.Serializable]
+    #region Configuration Collections Class
+    public class Configuration {
+        protected const string API_VERSION = "v1";                                    // API version to use
         protected const string SANDBOX_BASE_URL = "http://127.0.0.1:8000";        // URL for sandbox configurations to make calls to
         protected const string LIVE_BASE_URL = "http://54.247.78.173:8888";           // URL for live configurations to mkae calls to
 
@@ -454,10 +467,10 @@ namespace Dataspin {
         public bool sandboxMode;
 
         public string BaseUrl {
-        	get {
-        		if(sandboxMode) return SANDBOX_BASE_URL;
-        		else return LIVE_BASE_URL;
-        	}
+            get {
+                if(sandboxMode) return SANDBOX_BASE_URL;
+                else return LIVE_BASE_URL;
+            }
         }
 
         public virtual string GetAuthTokenURL() {
@@ -465,7 +478,7 @@ namespace Dataspin {
         }
 
         public virtual string GetPlayerRegisterURL() {
-        	return BaseUrl + System.String.Format(PLAYER_REGISTER, API_VERSION);
+            return BaseUrl + System.String.Format(PLAYER_REGISTER, API_VERSION);
         }
 
         public virtual string GetDeviceRegisterURL() {
@@ -536,7 +549,7 @@ namespace Dataspin {
         public override string ToString() {
             return AppName + " " + AppVersion + ", Platform: "+ GetCurrentPlatform() +", APIKey: "+APIKey+", SandboxMode? "+sandboxMode;
         }
-	}
+    }
 
     [System.Serializable]
     public class Configurations
@@ -553,34 +566,34 @@ namespace Dataspin {
     #region Enums
 
     public enum HttpRequestMethod {
-    	HttpMethod_Get = 0,
-    	HttpMethod_Put = 1,
-    	HttpMethod_Post = 2,
-    	HttpMethod_Delete = -1
-	}
+        HttpMethod_Get = 0,
+        HttpMethod_Put = 1,
+        HttpMethod_Post = 2,
+        HttpMethod_Delete = -1
+    }
 
-	public enum DataspinRequestMethod {
+    public enum DataspinRequestMethod {
         Unknown = -1234,
         Dataspin_GetAuthToken = -1,
-		Dataspin_RegisterUser = 0,
-		Dataspin_RegisterUserDevice = 1,
+        Dataspin_RegisterUser = 0,
+        Dataspin_RegisterUserDevice = 1,
         Dataspin_StartSession = 2,
         Dataspin_RegisterEvent = 3,
         Dataspin_PurchaseItem = 4,
         Dataspin_GetItems = 5,
         Dataspin_GetCustomEvents = 6
-	}
+    }
 
-	public enum DataspinType {
-		Dataspin_Item,
-		Dataspin_Coinpack,
-		Dataspin_Purchase
-	}
+    public enum DataspinType {
+        Dataspin_Item,
+        Dataspin_Coinpack,
+        Dataspin_Purchase
+    }
 
-	public enum DataspinNotificationDeliveryType {
-		tapped,
-		received
-	}
+    public enum DataspinNotificationDeliveryType {
+        tapped,
+        received
+    }
 
-	#endregion
+    #endregion
 }
