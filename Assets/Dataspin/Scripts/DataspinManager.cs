@@ -52,7 +52,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.1";
+        public const string version = "0.11";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
