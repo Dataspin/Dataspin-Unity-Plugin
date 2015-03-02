@@ -57,10 +57,11 @@ namespace Dataspin {
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
         private const string DEVICE_UUID_PREFERENCE_KEY = "dataspin_device_uuid";
-        public Configurations configurations;
-        public List<DataspinError> dataspinErrors;
         private Configuration currentConfiguration;
 
+        public Configurations configurations;
+        public List<DataspinError> dataspinErrors;
+        
         public Configuration CurrentConfiguration {
             get {
                 return currentConfiguration;
@@ -73,9 +74,9 @@ namespace Dataspin {
         private string uuid;
         private string device_uuid;
 
-        private bool isUserRegistered;
         private bool isDeviceRegistered;
         private bool isSessionStarted;
+        private bool isUserRegistered;
 
         public List<DataspinItem> dataspinItems;
         public List<DataspinCustomEvent> dataspinCustomEvents;
