@@ -8,7 +8,7 @@ namespace Dataspin {
 		public ErrorTypeEnum errorType;
 		public string message;
 		public string stackTrace;
-		public DataspinRequestMethod requestMethod;
+		public DataspinWebRequest request;
 
 		public enum ErrorTypeEnum {
 			UNKNOWN_ERROR = 0,
@@ -20,6 +20,7 @@ namespace Dataspin {
 			USER_NOT_REGISTERED = 6,
 			INTERNET_NOTREACHABLE = 7,
 			SESSION_NOT_STARTED = 8,
+			QUANTITY_ERROR = 410,
 		}
 
 		public ErrorTypeEnum ErrorType {
@@ -40,18 +41,24 @@ namespace Dataspin {
 			}
 		}
 
-		public DataspinError(ErrorTypeEnum errorType, string message, string stackTrace = null, DataspinRequestMethod requestMethod = DataspinRequestMethod.Unknown) {
+		public DataspinWebRequest Request {
+			get {
+				return request;
+			}
+		}
+
+		public DataspinError(ErrorTypeEnum errorType, string message, string stackTrace = null, DataspinWebRequest request = null) {
 			this.errorType = errorType;
 			this.message = message;
 			this.stackTrace = stackTrace;
-			this.requestMethod = requestMethod;
+			this.request = request;
 
 			DataspinManager.Instance.LogError(this.ToString());
 			DataspinManager.Instance.FireErrorEvent(this);
 		}
 
 		public override string ToString() {
-			return "[DataspinError] while executing "+requestMethod.ToString() +"Error type: " + errorType.ToString() + 
+			return "[DataspinError] while executing "+request.DataspinMethod.ToString() +", Error type: " + errorType.ToString() + 
 			" - " + message + ", Stack Trace: "+stackTrace;
 		}
 	}

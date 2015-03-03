@@ -45,6 +45,12 @@ namespace Dataspin {
 			}
 		}
 
+		public HttpRequestMethod HttpMethod {
+			get {
+				return httpMethod;
+			}
+		}
+
 		public DataspinWebRequest (DataspinRequestMethod dataspinMethod, HttpRequestMethod httpMethod, Dictionary<string,object> postData = null) {
 			this.postData = postData;
 			this.dataspinMethod = dataspinMethod;
@@ -89,7 +95,7 @@ namespace Dataspin {
 				DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
 				yield return this.www;
 				if(this.www.error != null) {
-					DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, www.error, null, this.dataspinMethod));
+					DataspinManager.Instance.ParseError(this);
 				}
 				else {
 					DataspinManager.Instance.LogInfo("Request "+dataspinMethod.ToString()+" success! Response: "+www.text);
@@ -98,7 +104,7 @@ namespace Dataspin {
 			}
 			else {
 				DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE, 
-					"Internet not reachable", "-", this.dataspinMethod));
+					"Internet not reachable", "-", this));
 			}
 		}
 

@@ -90,11 +90,11 @@ public class DataspinExample : MonoBehaviour {
 		uuidText.text = "UUID: "+uuid;
 	}
 
-	private void OnDeviceRegistered(string uuid) {
+	private void OnDeviceRegistered() {
 		//DataspinManager.Instance.RegisterDevice();
 		statusText.text = "User & device registered, session not started";
 		startSessionButton.interactable = true;
-		deviceUuidText.text = "Device UUID: "+uuid;
+		deviceUuidText.text = "Device UUID: "+SystemInfo.deviceUniqueIdentifier;
 	}
 
 	private void OnSessionStarted() {
@@ -132,6 +132,13 @@ public class DataspinExample : MonoBehaviour {
 
 	private void OnErrorOccured(DataspinError error) {
 		logText.text = error.ToString();
+		switch(error.ErrorType) {
+			case(DataspinError.ErrorTypeEnum.QUANTITY_ERROR):
+				logText.text = "Item out of stock, Item: "+error.Request.PostData["item"];
+				break;
+			default:
+				break;
+		}
 	}
 	#endregion
 }

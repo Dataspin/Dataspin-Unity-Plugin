@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.11
+/// Version 0.12
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -52,7 +52,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.11";
+        public const string version = "0.12";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -96,7 +96,7 @@ namespace Dataspin {
 
         #region Events
         public static event Action<string> OnUserRegistered;
-        public static event Action<string> OnDeviceRegistered;
+        public static event Action OnDeviceRegistered;
         public static event Action OnSessionStarted;
         public static event Action OnEventRegistered;
         public static event Action<DataspinItem> OnItemPurchased;
@@ -116,13 +116,17 @@ namespace Dataspin {
             new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetAuthToken, HttpRequestMethod.HttpMethod_Post, parameters);
         }
 
-        public void RegisterUser(string name = "", string surname = "", string email = "") {
+        public void RegisterUser(string name = "", string surname = "", string email = "", string google_plus_id = "", string facebook_id = "", string gamecenter_id = "" ) {
             if(!PlayerPrefs.HasKey(USER_UUID_PREFERENCE_KEY)) {
                 LogInfo("User not registered yet!");
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("name", name);
-                parameters.Add("surname", surname);
-                parameters.Add("email", email);
+                if(name != "") parameters.Add("name", name);
+                if(surname != "") parameters.Add("surname", surname);
+                if(email != "") parameters.Add("email", email);
+                if(google_plus_id != "") parameters.Add("google_plus", google_plus_id);
+                if(facebook_id != "") parameters.Add("facebook", facebook_id);
+                if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id);
+
 
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters);
             }
@@ -135,22 +139,23 @@ namespace Dataspin {
             }
         }
 
-        public void RegisterDevice(string notification_id = "") {
+        public void RegisterDevice(string notification_id = "", string ad_id = "") {
             if(!PlayerPrefs.HasKey(DEVICE_UUID_PREFERENCE_KEY)) {
                 if(isUserRegistered) {
                     LogInfo("Device not registered yet!");
                     Dictionary<string, object> parameters = new Dictionary<string, object>();
-                    parameters.Add("end_user", uuid);
+                    parameters.Add("end_user", this.uuid);
                     parameters.Add("platform", GetCurrentPlatform());
                     parameters.Add("device", GetDevice());
+                    parameters.Add("uuid", GetDeviceId());
 
+                    if(ad_id != "") parameters.Add("ads_id", ad_id);
                     if(notification_id != "") parameters.Add("notification_id", notification_id);
 
                     new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
                 }
                 else {
-                    dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. ", 
-                            null, DataspinRequestMethod.Dataspin_RegisterUserDevice));
+                    dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. "));
                 }
             }
             else {
@@ -158,15 +163,18 @@ namespace Dataspin {
                 device_uuid = PlayerPrefs.GetString(DEVICE_UUID_PREFERENCE_KEY);
                 isDeviceRegistered = true;
 
-                OnDeviceRegistered(this.device_uuid);
+                OnDeviceRegistered();
             }
         }
 
-        public void StartSession() {
+        public void StartSession(string carrier_name = "") {
             if(isDeviceRegistered && !isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("end_user_device", device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                parameters.Add("connectivity_type", (int) GetConnectivity());
+                if(carrier_name != "") parameters.Add("carrier_name", carrier_name);
+
 
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
             }
@@ -174,8 +182,7 @@ namespace Dataspin {
                 LogInfo("Session already in progress! No need to call new one.");
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. ", 
-                        null, DataspinRequestMethod.Dataspin_StartSession));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. "));
             }
         }
 
@@ -189,8 +196,7 @@ namespace Dataspin {
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters);
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
-                        null, DataspinRequestMethod.Dataspin_RegisterEvent));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
 
@@ -204,8 +210,7 @@ namespace Dataspin {
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
-                        null, DataspinRequestMethod.Dataspin_PurchaseItem));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
 
@@ -216,8 +221,7 @@ namespace Dataspin {
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters);
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
-                        null, DataspinRequestMethod.Dataspin_GetItems));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
 
@@ -228,8 +232,7 @@ namespace Dataspin {
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters);
             }
             else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!", 
-                        null, DataspinRequestMethod.Dataspin_GetCustomEvents));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
         #endregion
@@ -252,11 +255,11 @@ namespace Dataspin {
                             break;
 
                         case DataspinRequestMethod.Dataspin_RegisterUserDevice:
-                            this.device_uuid = (string) responseDict["uuid"];
-                            PlayerPrefs.SetString(DEVICE_UUID_PREFERENCE_KEY, this.device_uuid);
+                            PlayerPrefs.SetString(DEVICE_UUID_PREFERENCE_KEY, GetDeviceId());
                             isDeviceRegistered = true;
-                            if(OnDeviceRegistered != null) OnDeviceRegistered(this.device_uuid);
-                            LogInfo("Device registered! UUID: "+this.device_uuid);
+                            this.device_uuid = GetDeviceId(); 
+                            if(OnDeviceRegistered != null) OnDeviceRegistered();
+                            LogInfo("Device registered! UUID: "+GetDeviceId());
                             break;
 
                         case DataspinRequestMethod.Dataspin_StartSession:
@@ -371,11 +374,11 @@ namespace Dataspin {
 
         private int GetCurrentPlatform() {
             #if UNITY_ANDROID   
-                return 2;
-            #elif UNITY_IOS
                 return 1;
+            #elif UNITY_IOS
+                return 2;
             #endif
-            return 2; //Default = Android
+            return 1; //Default = Android
         }
 
         public Hashtable GetAuthHeader() {
@@ -406,8 +409,8 @@ namespace Dataspin {
             }
         }
 
-        public void AddError(DataspinError.ErrorTypeEnum errorType, string message, string stackTrace = null, DataspinRequestMethod requestMethod = DataspinRequestMethod.Unknown) {
-            dataspinErrors.Add(new DataspinError(errorType, message, stackTrace, requestMethod));
+        public void AddError(DataspinError.ErrorTypeEnum errorType, string message, string stackTrace = null, DataspinWebRequest request = null) {
+            dataspinErrors.Add(new DataspinError(errorType, message, stackTrace, request));
         }
 
         public void LogInfo(string msg) {
@@ -438,6 +441,57 @@ namespace Dataspin {
                 return configurations.editor;
             #endif
         }
+
+        public string GetDeviceId() {
+            #if UNITY_EDITOR
+                return Md5Sum(SystemInfo.deviceUniqueIdentifier);
+            #else
+                return SystemInfo.deviceUniqueIdentifier;
+            #endif  
+        }
+
+        public  string Md5Sum(string strToEncrypt)
+        {
+            System.Text.UTF8Encoding ue = new System.Text.UTF8Encoding();
+            byte[] bytes = ue.GetBytes(strToEncrypt);
+         
+            // encrypt bytes
+            System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] hashBytes = md5.ComputeHash(bytes);
+         
+            // Convert the encrypted bytes back to a string (base 16)
+            string hashString = "";
+         
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
+            }
+         
+            return hashString.PadLeft(32, '0');
+        }
+
+        public Connectivity_Type GetConnectivity() {
+            if(Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork) {
+                return Connectivity_Type.Cellular;
+            }
+            else return Connectivity_Type.Wifi;
+        }
+
+
+        public void ParseError(DataspinWebRequest request) {
+            switch(request.DataspinMethod) {
+                case DataspinRequestMethod.Dataspin_PurchaseItem:
+                    if(request.WWW.error.Contains("410"))
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error, null, request));
+                    else 
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                    break;
+                default:
+                    dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                    break;
+            }
+        }
+
         #endregion
     }
 
@@ -542,7 +596,7 @@ namespace Dataspin {
                     return GetEventsListURL();
                 default:
                     DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CORRESPONDING_URL_MISSING, 
-                        "Corresponing URL Missing, please contact rafal@dataspin.io", "-", dataspinMethod));
+                        "Corresponing URL Missing, please contact rafal@dataspin.io"));
                     return null;
             }
         }
@@ -571,6 +625,11 @@ namespace Dataspin {
         HttpMethod_Put = 1,
         HttpMethod_Post = 2,
         HttpMethod_Delete = -1
+    }
+
+    public enum Connectivity_Type {
+        Wifi = 0,
+        Cellular = 1
     }
 
     public enum DataspinRequestMethod {
