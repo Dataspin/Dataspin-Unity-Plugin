@@ -287,6 +287,7 @@ namespace Dataspin {
                             isSessionStarted = false;
                             if(OnSessionEnded != null) OnSessionEnded();
                             LogInfo("Session ended!");
+                            break;
 
                         case DataspinRequestMethod.Dataspin_PurchaseItem:
                             DataspinItem item = FindItemById((string) request.PostData["item"]);
