@@ -56,6 +56,10 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.Instance.StartSession();
 	}
 
+	public void EndSession() {
+		DataspinManager.Instance.EndSession();
+	}
+
 	public void GetItems() {
 		DataspinManager.Instance.GetItems();
 	}

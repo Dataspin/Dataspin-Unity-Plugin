@@ -29,7 +29,6 @@ namespace Dataspin {
 
 		public static string Encrypt (string toEncrypt)
 		{
-			var startTime = Time.realtimeSinceStartup;
 			byte[] keyArray = System.Text.UTF8Encoding.UTF8.GetBytes (ENCRYPTION_KEY);
 			byte[] toEncryptArray = System.Text.UTF8Encoding.UTF8.GetBytes (toEncrypt);
 			RijndaelManaged rDel = new RijndaelManaged ();
@@ -45,7 +44,6 @@ namespace Dataspin {
 		 
 		public static string Decrypt (string toDecrypt)
 		{
-			var startTime = Time.realtimeSinceStartup;
 			byte[] keyArray = System.Text.UTF8Encoding.UTF8.GetBytes (ENCRYPTION_KEY);
 			byte[] toEncryptArray = Convert.FromBase64String (toDecrypt);
 			RijndaelManaged rDel = new RijndaelManaged ();

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.12
+/// Version 0.13
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -52,7 +52,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.12";
+        public const string version = "0.13";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -98,6 +98,7 @@ namespace Dataspin {
         public static event Action<string> OnUserRegistered;
         public static event Action OnDeviceRegistered;
         public static event Action OnSessionStarted;
+        public static event Action OnSessionEnded;
         public static event Action OnEventRegistered;
         public static event Action<DataspinItem> OnItemPurchased;
         public static event Action<List<DataspinItem>> OnItemsRetrieved;
@@ -175,7 +176,6 @@ namespace Dataspin {
                 parameters.Add("connectivity_type", (int) GetConnectivity());
                 if(carrier_name != "") parameters.Add("carrier_name", carrier_name);
 
-
                 new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
             }
             else if(isSessionStarted) {
@@ -183,6 +183,21 @@ namespace Dataspin {
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User device is not registered! Device_UUID is missing. "));
+            }
+        }
+
+        public void EndSession(string carrier_name = "") {
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                parameters.Add("connectivity_type", (int) GetConnectivity());
+                if(carrier_name != "") parameters.Add("carrier_name", carrier_name);
+
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_EndSession, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                LogInfo("Cannot End Session, there is no session active!");
             }
         }
 
@@ -267,6 +282,11 @@ namespace Dataspin {
                             if(OnSessionStarted != null) OnSessionStarted();
                             LogInfo("Session started!");
                             break;
+
+                        case DataspinRequestMethod.Dataspin_EndSession:
+                            isSessionStarted = false;
+                            if(OnSessionEnded != null) OnSessionEnded();
+                            LogInfo("Session ended!");
 
                         case DataspinRequestMethod.Dataspin_PurchaseItem:
                             DataspinItem item = FindItemById((string) request.PostData["item"]);
@@ -506,6 +526,7 @@ namespace Dataspin {
         protected const string PLAYER_REGISTER = "/api/{0}/register_user/";
         protected const string DEVICE_REGISTER = "/api/{0}/register_user_device/";
         protected const string START_SESSION = "/api/{0}/start_session/";
+        protected const string END_SESSION = "/api/{0}/end_session/";
         protected const string REGISTER_EVENT = "/api/{0}/register_event/";
         protected const string PURCHASE_ITEM = "/api/{0}/purchase/";
 
@@ -542,6 +563,10 @@ namespace Dataspin {
 
         public virtual string GetStartSessionURL() {
             return BaseUrl + System.String.Format(START_SESSION, API_VERSION);
+        }
+
+        public virtual string GetEndSessionURL() {
+            return BaseUrl + System.String.Format(END_SESSION, API_VERSION);
         }
 
         public virtual string GetRegisterEventURL() {
@@ -586,6 +611,8 @@ namespace Dataspin {
                     return GetDeviceRegisterURL();
                 case DataspinRequestMethod.Dataspin_StartSession:
                     return GetStartSessionURL();
+                case DataspinRequestMethod.Dataspin_EndSession:
+                    return GetEndSessionURL();
                 case DataspinRequestMethod.Dataspin_RegisterEvent:
                     return GetRegisterEventURL();
                 case DataspinRequestMethod.Dataspin_PurchaseItem:
@@ -641,7 +668,8 @@ namespace Dataspin {
         Dataspin_RegisterEvent = 3,
         Dataspin_PurchaseItem = 4,
         Dataspin_GetItems = 5,
-        Dataspin_GetCustomEvents = 6
+        Dataspin_GetCustomEvents = 6,
+        Dataspin_EndSession = 7
     }
 
     public enum DataspinType {
