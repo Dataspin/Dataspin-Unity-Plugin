@@ -27,6 +27,7 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnUserRegistered += OnUserRegistered;
 		DataspinManager.OnDeviceRegistered += OnDeviceRegistered;
 		DataspinManager.OnSessionStarted += OnSessionStarted;
+		DataspinManager.OnSessionEnded += OnSessionEnded;
 		DataspinManager.OnEventRegistered += OnEventRegistered;
 		DataspinManager.OnItemPurchased += OnItemPurchased;
 		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
@@ -104,6 +105,11 @@ public class DataspinExample : MonoBehaviour {
 	private void OnSessionStarted() {
 		statusText.text = "Session Started - All OK";
 		sessionActions.SetActive(true);
+	}
+
+	private void OnSessionEnded() {
+		statusText.text = "User & device registered, session not started";
+		sessionActions.SetActive(false);
 	}
 
 	private void OnEventRegistered() {
