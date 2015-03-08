@@ -20,6 +20,9 @@ namespace Dataspin {
 			USER_NOT_REGISTERED = 6,
 			INTERNET_NOTREACHABLE = 7,
 			SESSION_NOT_STARTED = 8,
+			BACKLOG_CORRUPTED = 9,
+			INTERNAL_PLUGIN_ERROR = 10,
+			BACKLOG_FLUSH_ERROR = 11,
 			QUANTITY_ERROR = 410,
 		}
 
@@ -58,7 +61,7 @@ namespace Dataspin {
 		}
 
 		public override string ToString() {
-			return "[DataspinError] while executing "+request.DataspinMethod.ToString() +", Error type: " + errorType.ToString() + 
+			return "[DataspinError] while executing "+ ((request != null) ? request.DataspinMethod.ToString() : "NO_METHOD") + ", Error type: " + errorType.ToString() + 
 			" - " + message + ", Stack Trace: "+stackTrace;
 		}
 	}

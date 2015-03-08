@@ -73,13 +73,17 @@ public class DataspinExample : MonoBehaviour {
 		Application.LoadLevel(Application.loadedLevel);
 	}
 
+	public void RawPurchaseItem(string name) {
+		DataspinManager.Instance.PurchaseItem(name, 1);
+	}
+
 	public void PurchaseItem() {
 		if(itemAmountField.text.Length > 0) {
 			int amount = int.Parse(itemAmountField.text);
-			DataspinManager.Instance.PurchaseItem(comboItemsBox.selected.textComponent.text, amount);
+			DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId, amount);
 		}
 		else {
-			DataspinManager.Instance.PurchaseItem(comboItemsBox.selected.textComponent.text);
+			DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId);
 		}
 	}
 
