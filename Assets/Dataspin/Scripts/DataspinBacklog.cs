@@ -13,8 +13,6 @@ namespace Dataspin {
 		#region Variables
 		private static DataspinBacklog _instance;
 
-		public static bool isDebug = true;
-
 		private const string logTag = "[DataspinBacklog]";
 
 		public const string SessionsInitialValue = "{\"sessions\":[],\"lastPid\":-1}";
@@ -210,7 +208,6 @@ namespace Dataspin {
 			Log("Request "+ request.DataspinMethod.ToString() + ", pid: "+(int)(long)request.TaskPid+", Succeed? "+succeded);
 			if(succeded) {
 				if(request.DataspinMethod == DataspinRequestMethod.Dataspin_RegisterOldSession) { //If it's session
-					// Dictionary<string, object> session = FindSessionByFakeId(request.TaskPid);
 
 					for(int i = 0; i < tasksArray.Length; i++) {
 						if(tasksArray[i].PostData.ContainsKey("session")) { //Find requests only with post_data["session"] key
@@ -252,7 +249,6 @@ namespace Dataspin {
 						}
 					}
 				}
-				//tasksArray[tasksListIterator] = null;
 			}
 
 			tasksListIterator++;
@@ -265,7 +261,7 @@ namespace Dataspin {
 
 		#region Helpers
 		private void Log(string msg) {
-			if(isDebug) Debug.Log(logTag + ": " + msg);
+			if(DataspinManager.Instance.CurrentConfiguration.logDebug) Debug.Log(logTag + ": " + msg);
 		}
 
 		private int GetIdFromResponse(string text) {
@@ -328,6 +324,7 @@ namespace Dataspin {
 				Log("New sessions backlog data: "+data);
 				data = Encrypt(data);
 				PlayerPrefs.SetString(SessionsPreferenceKey, data);
+
 				dataDict = new Dictionary<string, object>();
 				dataDict.Add("requests",backlogRequestsList);
 				data = Json.Serialize(dataDict);

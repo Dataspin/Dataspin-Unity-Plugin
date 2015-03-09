@@ -75,35 +75,7 @@ namespace Dataspin {
 			if(specialUrl == "-") this.url = DataspinManager.Instance.CurrentConfiguration.GetMethodCorrespondingURL(dataspinMethod);
 			else this.url = specialUrl;
 
-			var encoding = new System.Text.UTF8Encoding();
-
-			if(httpMethod == HttpRequestMethod.HttpMethod_Post) {
-				if(dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) {
-					this.stringPostData = Json.Serialize(this.postData);
-
-					Hashtable postHeader = new Hashtable();
-					postHeader.Add("Content-Type", "application/json");
-					postHeader.Add("Content-Length", stringPostData.Length);
-					postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
-
-					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
-				}
-				else 
-					this.www = new WWW(this.url, new WWWForm());
-			}
-			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
-				Hashtable postHeader = new Hashtable();
-				postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
-
-				int counter = 0;
-				foreach(KeyValuePair<string, object> kvp in postData) {
-					if(counter == 0) url += "?" + kvp.Key + "=" + WWW.EscapeURL((string)kvp.Value.ToString());
-					else url += "&" + kvp.Key + "=" + kvp.Value;
-					counter++;
-				}
-
-				this.www = new WWW(this.url, null, postHeader);
-			}
+			UpdateWWW();
 
 			if(specialUrl == "-") {
 				Log("Special URL not supplied, executing request!");
@@ -203,12 +175,12 @@ namespace Dataspin {
 				case HttpRequestMethod.HttpMethod_Get:
 					return "GET";
 				default:
-					return "GET";
+					return "POST";
 			}
 		}
 
 		private void Log(string msg) {
-
+			if(DataspinManager.Instance.CurrentConfiguration.logDebug) Debug.Log("[DataspinWebRequest] "+msg);
 		}
 
 		public override string ToString() {

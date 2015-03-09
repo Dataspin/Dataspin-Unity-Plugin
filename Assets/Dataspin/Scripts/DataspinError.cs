@@ -62,7 +62,7 @@ namespace Dataspin {
 
 		public override string ToString() {
 			return "[DataspinError] while executing "+ ((request != null) ? request.DataspinMethod.ToString() : "NO_METHOD") + ", Error type: " + errorType.ToString() + 
-			" - " + message + ", Stack Trace: "+stackTrace;
+			" - " + message + ((stackTrace == null) ? "" : ", Stack Trace: "+stackTrace);
 		}
 	}
 }

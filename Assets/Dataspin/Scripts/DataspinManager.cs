@@ -217,30 +217,40 @@ namespace Dataspin {
         }
 
         public void RegisterCustomEvent(string custom_event, string extraData = null, int forced_sess_id = -1) {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters.Add("custom_event", custom_event);
-            parameters.Add("end_user_device", device_uuid);
-            parameters.Add("app_version", CurrentConfiguration.AppVersion);
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("custom_event", custom_event);
+                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
 
-            if(extraData != null) parameters.Add("data", extraData);
+                if(extraData != null) parameters.Add("data", extraData);
 
-            if(forced_sess_id == -1) parameters.Add("session", SessionId);
-            else parameters.Add("session", forced_sess_id);
+                if(forced_sess_id == -1) parameters.Add("session", SessionId);
+                else parameters.Add("session", forced_sess_id);
 
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
+            }
         }
 
         public void PurchaseItem(string internal_id, int amount = 1, int forced_sess_id = -1) {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
-            parameters.Add("end_user_device", device_uuid);
-            parameters.Add("app_version", CurrentConfiguration.AppVersion);
-            parameters.Add("amount", amount);
+            if(isSessionStarted) {
+                Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
+                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+                parameters.Add("amount", amount);
 
-            if(forced_sess_id == -1) parameters.Add("session", SessionId);
-            else parameters.Add("session", forced_sess_id);
+                if(forced_sess_id == -1) parameters.Add("session", SessionId);
+                else parameters.Add("session", forced_sess_id);
 
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
+                new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
+            }
+            else {
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
+            }
         }
 
         public void GetItems() {
@@ -305,7 +315,7 @@ namespace Dataspin {
                             break;
 
                         case DataspinRequestMethod.Dataspin_RegisterOldSession:
-                            //DataspinBacklog.Instance.ReportTaskCompletion(request, true);
+                            isSessionStarted = true;
                             break;
 
                         case DataspinRequestMethod.Dataspin_PurchaseItem:
