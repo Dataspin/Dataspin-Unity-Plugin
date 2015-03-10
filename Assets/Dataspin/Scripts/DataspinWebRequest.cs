@@ -101,7 +101,16 @@ namespace Dataspin {
 					Hashtable postHeader = new Hashtable();
 					postHeader.Add("Content-Type", "application/json");
 					postHeader.Add("Content-Length", stringPostData.Length);
-					postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
+
+					#if UNITY_ANDROID && !UNITY_EDITOR
+						postHeader.TokenAuthorization(DataspinManager.Instance.CurrentConfiguration.APIKey);
+					#else
+						postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
+					#endif
+
+					foreach(DictionaryEntry kvp in postHeader) {
+						Debug.Log(kvp.Key + " : " + kvp.Value);
+					}
 
 					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
 				}
