@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.2
+/// Version 0.22
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -34,6 +34,8 @@ namespace Dataspin {
         }
 
         private void Awake() {
+            currentConfiguration = getCurrentConfiguration();
+
             if(isDataspinEstablished == true) {
                 Debug.Log("Dataspin prefab already detected in scene, deleting new instance!");
                 Destroy(this.gameObject);
@@ -45,14 +47,13 @@ namespace Dataspin {
             dataspinErrors = new List<DataspinError>();
 
             if(this.gameObject.name != prefabName) this.gameObject.name = prefabName;
-            currentConfiguration = getCurrentConfiguration();
             _instance = this;
         }
         #endregion Singleton
 
 
         #region Properties & Variables
-        public const string version = "0.2";
+        public const string version = "0.22";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -64,6 +65,7 @@ namespace Dataspin {
         
         public Configuration CurrentConfiguration {
             get {
+                if(currentConfiguration == null) currentConfiguration = getCurrentConfiguration();
                 return currentConfiguration;
             }
         }
@@ -470,11 +472,12 @@ namespace Dataspin {
         }
 
         public void LogError(string msg) {
+            if(currentConfiguration == null) currentConfiguration = getCurrentConfiguration();
             if(currentConfiguration.logDebug) Debug.LogError(logTag + ": " + msg);
         }
 
         public void FireErrorEvent(DataspinError err) {
-            OnErrorOccured(err);
+            if(OnErrorOccured != null) OnErrorOccured(err);
         }
 
         private Configuration getCurrentConfiguration() {
@@ -496,6 +499,8 @@ namespace Dataspin {
 
         public string GetDeviceId() {
             #if UNITY_EDITOR
+                return Md5Sum(SystemInfo.deviceUniqueIdentifier);
+            #elif UNITY_IPHONE
                 return Md5Sum(SystemInfo.deviceUniqueIdentifier);
             #else
                 return SystemInfo.deviceUniqueIdentifier;
@@ -554,12 +559,24 @@ namespace Dataspin {
             switch(request.DataspinMethod) {
                 case DataspinRequestMethod.Dataspin_PurchaseItem:
                     if(request.WWW.error.Contains("410"))
-                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error, null, request));
+                        #if UNITY_5
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error + request.WWW.text, null, request));
+                        #else
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error, null, request));
+                        #endif
                     else 
-                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                        #if UNITY_5
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error + request.WWW.text, null, request));
+                        #else
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                        #endif
                     break;
                 default:
-                    dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                    #if UNITY_5
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error + request.WWW.text, null, request));
+                    #else
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                    #endif
                     break;
             }
         }

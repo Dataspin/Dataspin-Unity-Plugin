@@ -98,19 +98,21 @@ namespace Dataspin {
 				if(dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) {
 					this.stringPostData = Json.Serialize(this.postData);
 
-					Hashtable postHeader = new Hashtable();
-					postHeader.Add("Content-Type", "application/json");
-					postHeader.Add("Content-Length", stringPostData.Length);
+					Dictionary<string, string> postHeader = new Dictionary<string, string>();
+					postHeader["Content-Type"] = "application/json";
+					postHeader["Content-Length"] = stringPostData.Length.ToString();
 
-					#if UNITY_ANDROID && !UNITY_EDITOR
-						postHeader.TokenAuthorization(DataspinManager.Instance.CurrentConfiguration.APIKey);
-					#else
-						postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
-					#endif
+					// #if UNITY_ANDROID && !UNITY_EDITOR
+					// 	postHeader.TokenAuthorization(DataspinManager.Instance.CurrentConfiguration.APIKey);
+					// #else
+					// 	postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
+					// #endif
 
-					foreach(DictionaryEntry kvp in postHeader) {
-						Debug.Log(kvp.Key + " : " + kvp.Value);
-					}
+					postHeader["Authorization"] = DataspinManager.Instance.GetStringAuthHeader();
+
+					// foreach(DictionaryEntry kvp in postHeader) {
+					// 	Debug.Log(kvp.Key + " : " + kvp.Value);
+					// }
 
 					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
 				}
@@ -118,8 +120,8 @@ namespace Dataspin {
 					this.www = new WWW(this.url, new WWWForm());
 			}
 			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
-				Hashtable postHeader = new Hashtable();
-				postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
+				Dictionary<string, string> postHeader = new Dictionary<string, string>();
+				postHeader["Authorization"] =  DataspinManager.Instance.GetStringAuthHeader();
 
 				int counter = 0;
 				foreach(KeyValuePair<string, object> kvp in postData) {

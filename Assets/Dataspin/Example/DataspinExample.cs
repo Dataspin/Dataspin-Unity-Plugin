@@ -83,7 +83,11 @@ public class DataspinExample : MonoBehaviour {
 			DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId, amount);
 		}
 		else {
-			DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId);
+			DataspinItem item = DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text);
+			if(item != null)
+				DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId);
+			else 
+				Debug.Log("No such item!");
 		}
 	}
 
