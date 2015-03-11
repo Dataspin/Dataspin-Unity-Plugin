@@ -8,13 +8,14 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.22
+/// Version 0.3
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
     public class DataspinManager : MonoBehaviour {
 
         #region Singleton
+
         /// Ensure that there is no constructor. This exists only for singleton use.
         protected DataspinManager() {}
 
@@ -36,6 +37,23 @@ namespace Dataspin {
         private void Awake() {
             currentConfiguration = getCurrentConfiguration();
 
+            //Android only stuff
+            #if UNITY_ANDROID && !UNITY_EDITOR
+                helperClass = new AndroidJavaClass("io.dataspin.unityhelpersdk.DataspinUnityHelper");
+                helperInstance = helperClass.CallStatic<AndroidJavaObject>("GetInstance");
+                helperClass.CallStatic("SetApiKey", currentConfiguration.APIKey);
+
+                // Get UnityPlayer context
+                unityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                unityInstance = unityClass.GetStatic<AndroidJavaObject>("currentActivity");
+                unityContext = unityInstance.CallStatic<AndroidJavaObject>("GetApplicationContext");
+
+                //Retrieve AdId
+                helperInstance.Call("GetAdvertisingInfo", unityContext);
+            #endif
+
+
+            //Singleton Stuff
             if(isDataspinEstablished == true) {
                 Debug.Log("Dataspin prefab already detected in scene, deleting new instance!");
                 Destroy(this.gameObject);
@@ -53,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.22";
+        public const string version = "0.3";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -75,6 +93,7 @@ namespace Dataspin {
         public static bool isDataspinEstablished;
         private string uuid;
         private string device_uuid;
+        private string advertisingId;
 
         private bool isDeviceRegistered;
         private bool isSessionStarted;
@@ -89,6 +108,7 @@ namespace Dataspin {
 
         public List<DataspinItem> dataspinItems;
         public List<DataspinCustomEvent> dataspinCustomEvents;
+        public List<DataspinWebRequest> OnGoingTasks;
 
         public List<DataspinItem> Items {
             get {
@@ -102,6 +122,14 @@ namespace Dataspin {
             }
         }
         #endregion
+
+        #if UNITY_ANDROID
+        private AndroidJavaClass helperClass;
+        private AndroidJavaClass unityClass;
+        private AndroidJavaObject helperInstance;
+        private AndroidJavaObject unityInstance;
+        private AndroidJavaObject unityContext;
+        #endif
 
         #region Events
         public static event Action<string> OnUserRegistered;
@@ -130,7 +158,7 @@ namespace Dataspin {
                 if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id);
 
 
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
                 LogInfo("User already registered, acquiring UUID from local storage.");
@@ -151,10 +179,10 @@ namespace Dataspin {
                     parameters.Add("device", GetDevice());
                     parameters.Add("uuid", GetDeviceId());
 
-                    if(ad_id != "") parameters.Add("ads_id", ad_id);
+                    if(ad_id != "") parameters.Add("ads_id", advertisingId);
                     if(notification_id != "") parameters.Add("notification_id", notification_id);
 
-                    new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters);
+                    CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters));
                 }
                 else {
                     dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, "User is not registered! UUID is missing. "));
@@ -176,9 +204,15 @@ namespace Dataspin {
                     parameters.Add("end_user_device", device_uuid);
                     parameters.Add("app_version", CurrentConfiguration.AppVersion);
                     parameters.Add("connectivity_type", (int) GetConnectivity());
-                    parameters.Add("carrier_name", carrier_name);
 
-                    new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters);
+                    #if UNITY_ANDROID
+                        parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
+                    #else
+                        parameters.Add("carrier_name", carrier_name);
+                    #endif
+
+
+                    CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_StartSession, HttpRequestMethod.HttpMethod_Post, parameters));
                 }
                 else if(isSessionStarted) {
                     LogInfo("Session already in progress! No need to call new one.");
@@ -192,6 +226,7 @@ namespace Dataspin {
             }
         }
 
+        //Backlog related task, recreate offline session and send to server
         public void CreateOldSession(int id, int deltaTime, int length) {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("end_user_device", device_uuid);
@@ -200,7 +235,7 @@ namespace Dataspin {
             parameters.Add("dt", deltaTime);
             parameters.Add("length", length);
 
-            new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, HttpRequestMethod.HttpMethod_Post, parameters, id);
+            CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, HttpRequestMethod.HttpMethod_Post, parameters, id));
         }
 
         public void EndSession(string carrier_name = "") {
@@ -209,9 +244,14 @@ namespace Dataspin {
                 parameters.Add("end_user_device", device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 parameters.Add("connectivity_type", (int) GetConnectivity());
-                if(carrier_name != "") parameters.Add("carrier_name", carrier_name);
+                
+                #if UNITY_ANDROID
+                        parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
+                #else
+                    parameters.Add("carrier_name", carrier_name);
+                #endif
 
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_EndSession, HttpRequestMethod.HttpMethod_Post, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_EndSession, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
                 LogInfo("Cannot End Session, there is no session active!");
@@ -230,7 +270,7 @@ namespace Dataspin {
                 if(forced_sess_id == -1) parameters.Add("session", SessionId);
                 else parameters.Add("session", forced_sess_id);
 
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
@@ -248,7 +288,7 @@ namespace Dataspin {
                 if(forced_sess_id == -1) parameters.Add("session", SessionId);
                 else parameters.Add("session", forced_sess_id);
 
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
@@ -259,7 +299,7 @@ namespace Dataspin {
             if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters));
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
@@ -270,7 +310,7 @@ namespace Dataspin {
             if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
-                new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters);
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters));
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
@@ -281,6 +321,7 @@ namespace Dataspin {
         #region Response Handler
 
         public void OnRequestSuccessfullyExecuted(DataspinWebRequest request) {
+            RemoveFromOnGoingTasks(request);
             LogInfo("Processing request "+request.DataspinMethod.ToString() +", Response: "+request.Response+".");
             try {
                 Dictionary<string, object> responseDict = Json.Deserialize(request.Response) as Dictionary<string, object>;
@@ -363,10 +404,56 @@ namespace Dataspin {
             }
         }
 
+        public void ExternalTaskCompleted(string json) {
+            Dictionary<string, object> dict = (Dictionary <string, object>) Json.Deserialize(json);
+            json = json.Replace("\\","");
+            json = json.Replace("\\\\","");
+            LogInfo("External task data received: "+json);
+            LogInfo("Response: "+dict["response"]);
+            DataspinWebRequest task = SearchOnGoingTask((string)dict["pid"]);
+            task.ProcessResponse((string) dict["response"], dict.ContainsKey("error") ? (string) dict["error"] : null);
+            //dict["pid"]
+        }
+
+        public void OnAdIdReceived(string adId) {
+            this.advertisingId = adId;
+        }
+
         #endregion
 
 
         #region Helper Functions
+
+        public void StartExternalTask(DataspinWebRequest request) {
+            #if UNITY_ANDROID && !UNITY_EDITOR
+            // Dictionary<string, object> dict = new Dictionary<string, object>();
+            // dict["url"] = request.URL;
+            // dict["ds_method"] = (int) request.DataspinMethod;
+            // dict["http_method"] = (int) request.HttpMethod;
+            // dict["post_data"] = Json.Serialize(request.PostData);
+            // dict["task_pid"] = request.ExternalTaskPid;
+            // helperInstance.Call("MakeConnection", Json.Serialize(dict));
+
+            helperInstance.Call("MakeConnection", request.URL, (int) request.DataspinMethod, (int) request.HttpMethod, Json.Serialize(request.PostData), request.ExternalTaskPid);
+            #endif
+        }
+
+        private DataspinWebRequest SearchOnGoingTask(string externalPid) {
+            foreach(DataspinWebRequest req in OnGoingTasks) {
+                if(req.ExternalTaskPid == externalPid) return req;
+            }
+            //Request not found!
+            return null;
+        }
+
+        private void CreateTask(DataspinWebRequest request) {
+            OnGoingTasks.Add(request);
+        }
+
+        private void RemoveFromOnGoingTasks(DataspinWebRequest request) {
+            OnGoingTasks.Remove(request);
+        }
+
         public void StartChildCoroutine(IEnumerator coroutineMethod) {
             StartCoroutine(coroutineMethod);
         }
@@ -507,22 +594,7 @@ namespace Dataspin {
             #endif  
         }
 
-        // Java Code
-        /*
-        public static String GetCarrier() {
-            TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            String carrierName = manager.getNetworkOperatorName();
-            return carrierName;
-        }
-        */
-
         public string GetCarrier() {
-            #if UNITY_ANDROID
-                AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                AndroidJavaObject unityActivity = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-                AndroidJavaObject context = unityActivity.Call<AndroidJavaObject>("getApplicationContext");
-
-            #endif
 
             return null;
         }
@@ -558,24 +630,24 @@ namespace Dataspin {
         public void ParseError(DataspinWebRequest request) {
             switch(request.DataspinMethod) {
                 case DataspinRequestMethod.Dataspin_PurchaseItem:
-                    if(request.WWW.error.Contains("410"))
+                    if(request.Error.Contains("410"))
                         #if UNITY_5
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error + request.WWW.text, null, request));
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.Error + request.Body, null, request));
                         #else
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.WWW.error, null, request));
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.Error, null, request));
                         #endif
                     else 
                         #if UNITY_5
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error + request.WWW.text, null, request));
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
                         #else
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error, null, request));
                         #endif
                     break;
                 default:
                     #if UNITY_5
-                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error + request.WWW.text, null, request));
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
                     #else
-                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.WWW.error, null, request));
+                        dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error, null, request));
                     #endif
                     break;
             }

@@ -18,37 +18,39 @@ namespace Dataspin {
 		private DataspinRequestMethod dataspinMethod;
 		private HttpRequestMethod httpMethod;
 		private WWW www;
+		private string responseBody;
+		private string responseError;
 
-		public int TaskPid {
-			get {
-				return taskPid;
-			}
+		//Unique ID used for searching tasks after being executed on native layer
+		//Task is invoked in Unity layer ---> Task is sent to Android layer and there executed --> Sent back to Unity, searching for this particular DataspinWebRequest
+
+		private string externalTaskPid;
+
+		public string ExternalTaskPid {
+			get { return externalTaskPid; }
 		}
 
-		public WWW WWW {
-			get {
-				return www;
-			}
+		public int TaskPid {
+			get { return taskPid; }
+		}
+
+		public string Error {
+			get { return responseError; }
 		}
 
 		public string URL {
-			get {
-				return url;
-			}
+			get { return url; }
 		}
 
 		public string Response {
 			get {
-				if(www.text.Length < 2)
-					return "{}";
+				if(www.text.Length < 2) return "{}";
 				return www.text;
 			}
 		}
 
 		public Dictionary<string,object> PostData {
-			get {
-				return postData;
-			}
+			get { return postData; }
 			set {
 				UpdateWWW();
 				postData = value;
@@ -56,15 +58,15 @@ namespace Dataspin {
 		}
 
 		public DataspinRequestMethod DataspinMethod {
-			get {
-				return dataspinMethod;
-			}
+			get { return dataspinMethod; }
 		}
 
 		public HttpRequestMethod HttpMethod {
-			get {
-				return httpMethod;
-			}
+			get { return httpMethod; }
+		}
+
+		public string Body {
+			get { return responseBody; }
 		}
 
 		public DataspinWebRequest (DataspinRequestMethod dataspinMethod, HttpRequestMethod httpMethod, Dictionary<string,object> postData = null, int taskPid = 0, string specialUrl = "-") {
@@ -87,7 +89,12 @@ namespace Dataspin {
 		}
 
 		public void Fire() {
-			DataspinManager.Instance.StartChildCoroutine(ExecuteRequest());
+			#if UNITY_ANDROID && !UNITY_EDITOR
+				this.externalTaskPid = UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString();
+				DataspinManager.Instance.StartExternalTask(this);
+			#else
+				DataspinManager.Instance.StartChildCoroutine(ExecuteRequest());
+			#endif
 		}
 
 		public void UpdateWWW() {
@@ -101,18 +108,7 @@ namespace Dataspin {
 					Dictionary<string, string> postHeader = new Dictionary<string, string>();
 					postHeader["Content-Type"] = "application/json";
 					postHeader["Content-Length"] = stringPostData.Length.ToString();
-
-					// #if UNITY_ANDROID && !UNITY_EDITOR
-					// 	postHeader.TokenAuthorization(DataspinManager.Instance.CurrentConfiguration.APIKey);
-					// #else
-					// 	postHeader.Add("Authorization", DataspinManager.Instance.GetStringAuthHeader());
-					// #endif
-
 					postHeader["Authorization"] = DataspinManager.Instance.GetStringAuthHeader();
-
-					// foreach(DictionaryEntry kvp in postHeader) {
-					// 	Debug.Log(kvp.Key + " : " + kvp.Value);
-					// }
 
 					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
 				}
@@ -138,30 +134,7 @@ namespace Dataspin {
 			if(Application.internetReachability != NetworkReachability.NotReachable) {
 				DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
 				yield return this.www;
-				if(this.www.error != null) {
-					DataspinManager.Instance.ParseError(this);
-					if(taskPid != 0) {
-						DataspinBacklog.Instance.ReportTaskCompletion(this, false);
-					}
-					else {
-						Log("TaskPid != 0");
-						if(dataspinMethod == DataspinRequestMethod.Dataspin_StartSession) {
-							DataspinBacklog.Instance.CreateOfflineSession();
-						}
-						else if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
-							Log("Server error - Putting request on tape: "+this.ToString());
-							DataspinBacklog.Instance.PutRequestOnBacklog(this);
-						}
-						else {
-							Log("Method not elgible for backlog, aborting.");
-						}
-					} 
-				}
-				else {
-					DataspinManager.Instance.LogInfo("Request "+dataspinMethod.ToString()+" success! Response: "+www.text);
-					DataspinManager.Instance.OnRequestSuccessfullyExecuted(this);
-					if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, true);
-				}
+				ProcessResponse(this.www.text, this.www.error);
 			}
 			else {
 				DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE, 
@@ -175,8 +148,34 @@ namespace Dataspin {
 					}
 				}
 			}
+		}
 
-			//TODO: Notify backlog if task was executed, if yes, remove fom backlog
+		public void ProcessResponse(string data, string error) {
+			if(error != null) {
+				this.responseError = error;
+				DataspinManager.Instance.ParseError(this);
+
+				if(taskPid != 0) {
+					DataspinBacklog.Instance.ReportTaskCompletion(this, false);
+				}
+				else {
+					if(dataspinMethod == DataspinRequestMethod.Dataspin_StartSession) {
+						DataspinBacklog.Instance.CreateOfflineSession();
+					}
+					else if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
+						Log("Server error - Putting request on tape: "+this.ToString());
+						DataspinBacklog.Instance.PutRequestOnBacklog(this);
+					}
+					//Else method should be not put on backlog
+				} 
+			}
+			else {
+				this.responseBody = data;
+				DataspinManager.Instance.LogInfo("Request "+dataspinMethod.ToString()+" success! Response: "+this.responseBody);
+				DataspinManager.Instance.OnRequestSuccessfullyExecuted(this);
+
+				if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, true); //If its BackLog task
+			}
 		}
 
 		private string HttpMethodToString(HttpRequestMethod httpMethod) {
