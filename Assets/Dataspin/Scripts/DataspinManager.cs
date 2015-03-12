@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.3
+/// Version 0.31
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -46,7 +46,7 @@ namespace Dataspin {
                 // Get UnityPlayer context
                 unityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 unityInstance = unityClass.GetStatic<AndroidJavaObject>("currentActivity");
-                unityContext = unityInstance.CallStatic<AndroidJavaObject>("GetApplicationContext");
+                unityContext = unityInstance.Call<AndroidJavaObject>("getApplicationContext");
 
                 //Retrieve AdId
                 helperInstance.Call("GetAdvertisingInfo", unityContext);
@@ -71,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.3";
+        public const string version = "0.31";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -126,8 +126,8 @@ namespace Dataspin {
         #if UNITY_ANDROID
         private AndroidJavaClass helperClass;
         private AndroidJavaClass unityClass;
-        private AndroidJavaObject helperInstance;
         private AndroidJavaObject unityInstance;
+        private AndroidJavaObject helperInstance;
         private AndroidJavaObject unityContext;
         #endif
 
@@ -205,7 +205,7 @@ namespace Dataspin {
                     parameters.Add("app_version", CurrentConfiguration.AppVersion);
                     parameters.Add("connectivity_type", (int) GetConnectivity());
 
-                    #if UNITY_ANDROID
+                    #if UNITY_ANDROID && !UNITY_EDITOR
                         parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
                     #else
                         parameters.Add("carrier_name", carrier_name);
@@ -245,7 +245,7 @@ namespace Dataspin {
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 parameters.Add("connectivity_type", (int) GetConnectivity());
                 
-                #if UNITY_ANDROID
+                #if UNITY_ANDROID && !UNITY_EDITOR
                         parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
                 #else
                     parameters.Add("carrier_name", carrier_name);
@@ -412,10 +412,10 @@ namespace Dataspin {
             LogInfo("Response: "+dict["response"]);
             DataspinWebRequest task = SearchOnGoingTask((string)dict["pid"]);
             task.ProcessResponse((string) dict["response"], dict.ContainsKey("error") ? (string) dict["error"] : null);
-            //dict["pid"]
         }
 
         public void OnAdIdReceived(string adId) {
+            Debug.Log("Advertising ID: "+adId);
             this.advertisingId = adId;
         }
 

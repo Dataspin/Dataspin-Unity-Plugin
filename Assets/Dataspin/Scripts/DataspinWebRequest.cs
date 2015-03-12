@@ -44,8 +44,8 @@ namespace Dataspin {
 
 		public string Response {
 			get {
-				if(www.text.Length < 2) return "{}";
-				return www.text;
+				if(responseBody.Length < 2) return "{}";
+				return responseBody;
 			}
 		}
 
@@ -153,6 +153,7 @@ namespace Dataspin {
 		public void ProcessResponse(string data, string error) {
 			if(error != null) {
 				this.responseError = error;
+				this.responseBody = data;
 				DataspinManager.Instance.ParseError(this);
 
 				if(taskPid != 0) {

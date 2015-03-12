@@ -99,6 +99,7 @@ public class DataspinExample : MonoBehaviour {
 	#region Listeners
 	private void OnUserRegistered(string uuid) {
 		statusText.text = "User registered, session not started";
+		//User registered, Now you can register device automatically or provide some parameters and call it manually after this event
 		DataspinManager.Instance.RegisterDevice();
 		uuidText.text = "UUID: "+uuid;
 	}
