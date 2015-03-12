@@ -95,6 +95,7 @@ namespace Dataspin {
         private string device_uuid;
         private string advertisingId;
 
+        private bool isAdIdRetrieved;
         private bool isDeviceRegistered;
         private bool isSessionStarted;
         private bool isUserRegistered;
@@ -417,6 +418,7 @@ namespace Dataspin {
         public void OnAdIdReceived(string adId) {
             Debug.Log("Advertising ID: "+adId);
             this.advertisingId = adId;
+            isAdIdRetrieved = true;
         }
 
         #endregion
@@ -660,8 +662,8 @@ namespace Dataspin {
     #region Configuration Collections Class
     public class Configuration {
         protected const string API_VERSION = "v1";                                    // API version to use
-        protected const string SANDBOX_BASE_URL = "http://127.0.0.1:8000";        // URL for sandbox configurations to make calls to
-        protected const string LIVE_BASE_URL = "http://54.247.78.173:8888";           // URL for live configurations to mkae calls to
+        protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";        // URL for sandbox configurations to make calls to
+        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io";           // URL for live configurations to mkae calls to
 
         protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
         protected const string PLAYER_REGISTER = "/api/{0}/register_user/";
@@ -678,7 +680,7 @@ namespace Dataspin {
 
         private const bool includeAuthHeader = false;
 
-        public string AppName;
+        public string ClientName;
         public string AppVersion;
         public string APIKey; //App Secret
         public bool logDebug;
@@ -687,7 +689,9 @@ namespace Dataspin {
         public string BaseUrl {
             get {
                 if(sandboxMode) return SANDBOX_BASE_URL;
-                else return LIVE_BASE_URL;
+                else {
+                    return string.Format(LIVE_BASE_URL, ClientName);
+                }
             }
         }
 
@@ -777,7 +781,7 @@ namespace Dataspin {
         }
 
         public override string ToString() {
-            return AppName + " " + AppVersion + ", Platform: "+ GetCurrentPlatform() +", APIKey: "+APIKey+", SandboxMode? "+sandboxMode;
+            return ClientName + ".dataspin.io " + AppVersion + ", Platform: "+ GetCurrentPlatform() +", APIKey: "+APIKey+", SandboxMode? "+sandboxMode;
         }
     }
 
