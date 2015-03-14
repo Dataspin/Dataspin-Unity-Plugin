@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.31
+/// Version 0.33
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -71,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.31";
+        public const string version = "0.33";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -147,16 +147,18 @@ namespace Dataspin {
 
 
         #region Requests
-        public void RegisterUser(string name = "", string surname = "", string email = "", string google_plus_id = "", string facebook_id = "", string gamecenter_id = "" ) {
-            if(!PlayerPrefs.HasKey(USER_UUID_PREFERENCE_KEY)) {
-                LogInfo("User not registered yet!");
+        public void RegisterUser(string name = "", string surname = "", string email = "", string google_plus_id = "", string facebook_id = "", string gamecenter_id = "", bool forceUpdate = false) {
+            if(!PlayerPrefs.HasKey(USER_UUID_PREFERENCE_KEY) || forceUpdate) {
+                LogInfo((forceUpdate) ? "Forcing user data update." : "User not registered yet.");
+
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
+                if(forceUpdate) parameters.Add("uuid", PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY));
                 if(name != "") parameters.Add("name", name);
                 if(surname != "") parameters.Add("surname", surname);
-                if(email != "") parameters.Add("email", email);
+                if(email != "") parameters.Add("email", helperInstance.Call<string>("GetMail", unityContext));
                 if(google_plus_id != "") parameters.Add("google_plus", google_plus_id);
                 if(facebook_id != "") parameters.Add("facebook", facebook_id);
-                if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id);
+                if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id); // iOS only
 
 
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters));
