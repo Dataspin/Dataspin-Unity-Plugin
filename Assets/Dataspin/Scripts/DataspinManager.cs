@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.33
+/// Version 0.33a
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -71,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.33";
+        public const string version = "0.33a";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
