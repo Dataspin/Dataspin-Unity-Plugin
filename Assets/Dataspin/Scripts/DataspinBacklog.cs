@@ -23,7 +23,7 @@ namespace Dataspin {
 		//Key used in PlayerPrefs encryption, just like preferences key, shouldn't be changed after release 
 		public static string ENCRYPTION_KEY = "39de5d3b2a503633"; 
 
-		public List<DataspinRequestMethod> backLogMethods;
+		private List<DataspinRequestMethod> backLogMethods;
 
 		private int pidCounter = 1;
 		private float timeUntilFlush = 1.0f;
@@ -62,6 +62,9 @@ namespace Dataspin {
 		}
 
 		private void Awake() {
+			backLogMethods.Add(DataspinRequestMethod.Dataspin_PurchaseItem);
+			backLogMethods.Add(DataspinRequestMethod.Dataspin_RegisterEvent);
+
 			_instance = this;
 			backlogSessionsList = new List<Dictionary<string, object>>();
 			backlogRequestsList = new List<Dictionary<string, object>>();

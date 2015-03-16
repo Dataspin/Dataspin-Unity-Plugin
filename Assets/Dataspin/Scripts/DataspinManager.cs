@@ -155,7 +155,12 @@ namespace Dataspin {
                 if(forceUpdate) parameters.Add("uuid", PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY));
                 if(name != "") parameters.Add("name", name);
                 if(surname != "") parameters.Add("surname", surname);
-                if(email != "") parameters.Add("email", helperInstance.Call<string>("GetMail", unityContext));
+                if(email != "") parameters.Add("email", email);
+
+                #if UNITY_ANDROID && !UNITY_EDITOR
+                else parameters.Add("email",helperInstance.Call<string>("GetMail", unityContext);
+                #endif
+
                 if(google_plus_id != "") parameters.Add("google_plus", google_plus_id);
                 if(facebook_id != "") parameters.Add("facebook", facebook_id);
                 if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id); // iOS only
