@@ -11,6 +11,9 @@ public class DataspinExample : MonoBehaviour {
 	public Text uuidText;
 	public Text deviceUuidText;
 	public Text logText;
+	public Text nameText;
+	public Text surnameText;
+	public Text emailText;
 
 	public InputField itemAmountField;
 	public InputField customEventData;
@@ -53,6 +56,10 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.Instance.RegisterUser();
 	}
 
+	public void UpdateUser() {
+		DataspinManager.Instance.RegisterUser(nameText.text, surnameText.text, emailText.text,null,null,null, true);
+	}
+
 	public void StartSession() {
 		DataspinManager.Instance.StartSession();
 	}
@@ -78,7 +85,7 @@ public class DataspinExample : MonoBehaviour {
 	}
 
 	public void PurchaseItem() {
-		if(itemAmountField.text.Length > 0) {
+		if(itemAmountField.text.Length > 0) { 
 			int amount = int.Parse(itemAmountField.text);
 			DataspinManager.Instance.PurchaseItem(DataspinManager.Instance.FindItemByName(comboItemsBox.selected.textComponent.text).InternalId, amount);
 		}

@@ -134,7 +134,12 @@ namespace Dataspin {
 			if(Application.internetReachability != NetworkReachability.NotReachable) {
 				DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
 				yield return this.www;
-				ProcessResponse(this.www.text, this.www.error);
+				#if UNITY_5
+					ProcessResponse(this.www.text, this.www.error);
+				#else
+					if(www.error == null) ProcessResponse(this.www.text, null);
+					else ProcessResponse(null, this.www.error);
+				#endif
 			}
 			else {
 				DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE, 

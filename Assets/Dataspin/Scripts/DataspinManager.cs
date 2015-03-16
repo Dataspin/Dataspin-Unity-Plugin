@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.34
+/// Version 0.34a
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -71,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.34";
+        public const string version = "0.34a";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -503,7 +503,7 @@ namespace Dataspin {
             deviceDictionary.Add("model", SystemInfo.deviceModel);
             deviceDictionary.Add("screen_width", Screen.width);
             deviceDictionary.Add("screen_height", Screen.height);
-            deviceDictionary.Add("dpi", Screen.dpi);
+            deviceDictionary.Add("dpi", Screen.dpi.ToString("f0"));
 
             return deviceDictionary;
         }
@@ -670,7 +670,7 @@ namespace Dataspin {
     public class Configuration {
         protected const string API_VERSION = "v1";                                    // API version to use
         protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";        // URL for sandbox configurations to make calls to
-        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io";           // URL for live configurations to mkae calls to
+        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io:8000";           // URL for live configurations to mkae calls to
 
         protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
         protected const string PLAYER_REGISTER = "/api/{0}/register_user/";
