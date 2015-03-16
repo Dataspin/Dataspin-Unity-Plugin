@@ -62,6 +62,7 @@ namespace Dataspin {
 		}
 
 		private void Awake() {
+			backLogMethods = new List<DataspinRequestMethod>();
 			backLogMethods.Add(DataspinRequestMethod.Dataspin_PurchaseItem);
 			backLogMethods.Add(DataspinRequestMethod.Dataspin_RegisterEvent);
 
