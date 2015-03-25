@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.34a
+/// Version 0.36
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -71,7 +71,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.34a";
+        public const string version = "0.36";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -100,6 +100,10 @@ namespace Dataspin {
         private bool isSessionStarted;
         private bool isUserRegistered;
         private int sessionId;
+
+        public string Device_UUID {
+            get { return device_uuid; }
+        }
 
         public int SessionId {
             get {
@@ -158,7 +162,7 @@ namespace Dataspin {
                 if(email != "") parameters.Add("email", email);
 
                 #if UNITY_ANDROID && !UNITY_EDITOR
-                else parameters.Add("email",helperInstance.Call<string>("GetMail", unityContext);
+                else parameters.Add("email",helperInstance.Call<string>("GetMail", unityContext));
                 #endif
 
                 if(google_plus_id != "") parameters.Add("google_plus", google_plus_id);
@@ -270,7 +274,7 @@ namespace Dataspin {
             if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("custom_event", custom_event);
-                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("end_user_device", this.device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
 
                 if(extraData != null) parameters.Add("data", extraData);
@@ -289,7 +293,7 @@ namespace Dataspin {
             if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
-                parameters.Add("end_user_device", device_uuid);
+                parameters.Add("end_user_device", this.device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 parameters.Add("amount", amount);
 
@@ -345,11 +349,11 @@ namespace Dataspin {
                             break;
 
                         case DataspinRequestMethod.Dataspin_RegisterUserDevice:
-                            PlayerPrefs.SetString(DEVICE_UUID_PREFERENCE_KEY, GetDeviceId());
+                            PlayerPrefs.SetString(DEVICE_UUID_PREFERENCE_KEY, (string) responseDict["uuid"]);
                             isDeviceRegistered = true;
-                            this.device_uuid = GetDeviceId(); 
+                            this.device_uuid = (string) responseDict["uuid"];
                             if(OnDeviceRegistered != null) OnDeviceRegistered();
-                            LogInfo("Device registered! UUID: "+GetDeviceId());
+                            LogInfo("Device registered! UUID: "+this.device_uuid);
                             break;
 
                         case DataspinRequestMethod.Dataspin_StartSession:
@@ -598,6 +602,8 @@ namespace Dataspin {
                 return Md5Sum(SystemInfo.deviceUniqueIdentifier);
             #elif UNITY_IPHONE
                 return Md5Sum(SystemInfo.deviceUniqueIdentifier);
+            #elif UNITY_ANDROID
+                return helperInstance.Call<string>("GetDeviceId", unityContext);
             #else
                 return SystemInfo.deviceUniqueIdentifier;
             #endif  
@@ -670,7 +676,7 @@ namespace Dataspin {
     public class Configuration {
         protected const string API_VERSION = "v1";                                    // API version to use
         protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";        // URL for sandbox configurations to make calls to
-        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io:8000";           // URL for live configurations to mkae calls to
+        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io";           // URL for live configurations to mkae calls to
 
         protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
         protected const string PLAYER_REGISTER = "/api/{0}/register_user/";

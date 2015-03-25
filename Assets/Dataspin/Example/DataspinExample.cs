@@ -115,7 +115,7 @@ public class DataspinExample : MonoBehaviour {
 		//DataspinManager.Instance.RegisterDevice();
 		statusText.text = "User & device registered, session not started";
 		startSessionButton.interactable = true;
-		deviceUuidText.text = "Device UUID: "+SystemInfo.deviceUniqueIdentifier;
+		deviceUuidText.text = "Device UUID: "+DataspinManager.Instance.Device_UUID;
 	}
 
 	private void OnSessionStarted() {
