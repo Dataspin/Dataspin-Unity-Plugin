@@ -99,6 +99,7 @@ namespace Dataspin {
         private bool isDeviceRegistered;
         private bool isSessionStarted;
         private bool isUserRegistered;
+        public int sessionTimestamp;
         private int sessionId;
 
         public string Device_UUID {
@@ -360,6 +361,7 @@ namespace Dataspin {
                             isSessionStarted = true;
                             sessionId = (int)(long) responseDict["id"];
                             if(OnSessionStarted != null) OnSessionStarted();
+                            this.sessionTimestamp = (int) GetTimestamp();
                             LogInfo("Session started!");
                             break;
 
@@ -533,6 +535,12 @@ namespace Dataspin {
                 return 2;
             #endif
             return 1; //Default = Android
+        }
+
+        private double GetTimestamp() {
+            DateTime epochStart = new System.DateTime(1970, 1, 1, 1, 0, 0, System.DateTimeKind.Utc);
+            double timestamp = (System.DateTime.UtcNow - epochStart).TotalSeconds;
+            return timestamp;
         }
 
         public Hashtable GetAuthHeader() {

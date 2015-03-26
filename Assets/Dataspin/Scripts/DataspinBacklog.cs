@@ -121,7 +121,7 @@ namespace Dataspin {
 				Dictionary<string, object> oldSessionDataDict = new Dictionary<string, object>(); 
 				oldSessionDataDict["end_user_device"] = DataspinManager.Instance.GetDeviceId();
 				oldSessionDataDict["app_version"] = DataspinManager.Instance.CurrentConfiguration.AppVersion;
-				oldSessionDataDict["dt"] = GetTimestamp() - (double) backlogSessionsList[i]["start_timestamp"];
+				oldSessionDataDict["dt"] = (int)(GetTimestamp() - (double) backlogSessionsList[i]["start_timestamp"]);
 				oldSessionDataDict["length"] = (double) backlogSessionsList[i]["end_timestamp"] - (double) backlogSessionsList[i]["start_timestamp"];
 
 				tasksArray[i] = new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, 
@@ -155,6 +155,7 @@ namespace Dataspin {
 			if(tasksArray.Length > tasksListIterator) {
 				Log("Executing next task from queue: "+tasksArray[tasksListIterator].ToString());
 				DataspinWebRequest req = tasksArray[tasksListIterator];
+				//req.PostData["dt"] = (int)req.PostData["dt"];
 				req.Fire();
 			}
 			else {
@@ -175,8 +176,14 @@ namespace Dataspin {
 			Log("Putting "+ (pidCounter-1).ToString()+" PID request on backlog: "+request.ToString());
 			pidCounter--;
 
-			request.PostData["dt"] = (int)(GetTimestamp() - offlineSessionStart);
-			request.PostData["session"] = (isOfflineSession) ? offlineSessionId : DataspinManager.Instance.SessionId;
+			if(isOfflineSession) {
+				request.PostData["dt"] = (int)(GetTimestamp() - offlineSessionStart);
+				request.PostData["session"] = isOfflineSession;
+			}
+			else {
+				request.PostData["dt"] = (int)(GetTimestamp() - DataspinManager.Instance.sessionTimestamp);
+				request.PostData["session"] = DataspinManager.Instance.SessionId;
+			}
 
 			Dictionary<string, object> requestDict = new Dictionary<string, object>();
 			requestDict["url"] = request.URL;
@@ -202,10 +209,12 @@ namespace Dataspin {
 			offlineSessionId = UnityEngine.Random.Range(-10000000,-1);;
 			currentSession["fake_id"] = offlineSessionId; //Assign fake Session ID just for dictinction
 			currentSession["start_timestamp"] = offlineSessionStart;
-			currentSession["end_timestamp"] = offlineSessionStart + 300;
+			currentSession["end_timestamp"] = offlineSessionStart + 60;
 			backlogSessionsList.Add(currentSession);
 
 			ResetFlushTimer();
+
+			StartCoroutine("UpdateOfflineSessionLength");
 		}
 
 		public void ReportTaskCompletion(DataspinWebRequest request, bool succeded) {
@@ -348,6 +357,20 @@ namespace Dataspin {
 				}
 			}
 			return null;
+		}
+
+		IEnumerator UpdateOfflineSessionLength() {
+			while(true) {
+				for(int i = 0; i < backlogSessionsList.Count; i++) {
+					if (offlineSessionId.ToString() == backlogSessionsList[i]["fake_id"].ToString()) {
+						backlogSessionsList[i]["end_timestamp"] = (double) backlogSessionsList[i]["end_timestamp"]+ 10;
+						Log("Ticking...");
+						ResetFlushTimer();
+						break;
+					}
+				}
+				yield return new WaitForSeconds(10f);
+			}
 		}
 
 		private double GetTimestamp() {
