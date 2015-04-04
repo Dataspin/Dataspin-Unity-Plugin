@@ -652,6 +652,7 @@ namespace Dataspin {
 
         public void ParseError(DataspinWebRequest request) {
             switch(request.DataspinMethod) {
+
             	case DataspinRequestMethod.Dataspin_StartSession:
             		if(request.Error.Contains("410"))
                         #if UNITY_5
@@ -681,6 +682,7 @@ namespace Dataspin {
                             dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error, null, request));
                         #endif
                     break;
+                    
                 default:
                     #if UNITY_5
                         dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
