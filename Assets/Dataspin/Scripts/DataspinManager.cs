@@ -652,21 +652,6 @@ namespace Dataspin {
 
         public void ParseError(DataspinWebRequest request) {
             switch(request.DataspinMethod) {
-            	case DataspinRequestMethod.Dataspin_StartSession:
-            		if(request.Error.Contains("410"))
-                        #if UNITY_5
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, request.Error + request.Body, null, request));
-                        #else
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, request.Error, null, request));
-                        #endif
-                    else 
-                        #if UNITY_5
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
-                        #else
-                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error, null, request));
-                        #endif
-                    break;
-
                 case DataspinRequestMethod.Dataspin_PurchaseItem:
                     if(request.Error.Contains("410"))
                         #if UNITY_5
