@@ -391,7 +391,6 @@ namespace Dataspin {
                                 dataspinItems.Add(new DataspinItem(itemDict));
                             }
                             if(OnItemsRetrieved != null) OnItemsRetrieved(dataspinItems);
-                            LogInfo("Items list retrieved: "+request.Response);
                             break;
 
                         case DataspinRequestMethod.Dataspin_GetCustomEvents:
@@ -402,7 +401,6 @@ namespace Dataspin {
                                 dataspinCustomEvents.Add(new DataspinCustomEvent(eventDict));
                             }
                             if(OnCustomEventsRetrieved != null) OnCustomEventsRetrieved(dataspinCustomEvents);
-                            LogInfo("Custom events list retrieved: "+request.Response);
                             break;
 
                         default:
@@ -441,14 +439,7 @@ namespace Dataspin {
 
         public void StartExternalTask(DataspinWebRequest request) {
             #if UNITY_ANDROID && !UNITY_EDITOR
-            // Dictionary<string, object> dict = new Dictionary<string, object>();
-            // dict["url"] = request.URL;
-            // dict["ds_method"] = (int) request.DataspinMethod;
-            // dict["http_method"] = (int) request.HttpMethod;
-            // dict["post_data"] = Json.Serialize(request.PostData);
-            // dict["task_pid"] = request.ExternalTaskPid;
-            // helperInstance.Call("MakeConnection", Json.Serialize(dict));
-
+            LogInfo("Starting external task: "+request.URL);
             helperInstance.Call("MakeConnection", request.URL, (int) request.DataspinMethod, (int) request.HttpMethod, Json.Serialize(request.PostData), request.ExternalTaskPid);
             #endif
         }
@@ -470,6 +461,7 @@ namespace Dataspin {
         }
 
         public void StartChildCoroutine(IEnumerator coroutineMethod) {
+            LogInfo("Starting ChildCoroutine...");
             StartCoroutine(coroutineMethod);
         }
 
@@ -652,6 +644,21 @@ namespace Dataspin {
 
         public void ParseError(DataspinWebRequest request) {
             switch(request.DataspinMethod) {
+                case DataspinRequestMethod.Dataspin_StartSession:
+                  if(request.Error.Contains("410"))
+                       #if UNITY_5
+                           dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, request.Error + request.Body, null, request));
+                       #else
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, request.Error, null, request));
+                        #endif
+                    else 
+                        #if UNITY_5
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
+                        #else
+                            dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error, null, request));
+                        #endif
+                    break;
+
                 case DataspinRequestMethod.Dataspin_PurchaseItem:
                     if(request.Error.Contains("410"))
                         #if UNITY_5

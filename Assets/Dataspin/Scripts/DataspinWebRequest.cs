@@ -13,7 +13,6 @@ namespace Dataspin {
 		private int taskPid;
 		private string url;
 		private string stringPostData;
-		private WebRequest webRequest;
 		private Dictionary<string,object> postData;
 		private DataspinRequestMethod dataspinMethod;
 		private HttpRequestMethod httpMethod;
@@ -80,11 +79,7 @@ namespace Dataspin {
 			UpdateWWW();
 
 			if(specialUrl == "-") {
-				Log("Special URL not supplied, executing request!");
 				Fire();
-			}
-			else {
-				Log("Special URL supplied, request suspended.");
 			}
 		}
 
@@ -98,7 +93,6 @@ namespace Dataspin {
 		}
 
 		public void UpdateWWW() {
-			Log("Updating DataspinWebRequest!");
 			var encoding = new System.Text.UTF8Encoding();
 
 			if(httpMethod == HttpRequestMethod.HttpMethod_Post) {
@@ -110,10 +104,15 @@ namespace Dataspin {
 					postHeader["Content-Length"] = stringPostData.Length.ToString();
 					postHeader["Authorization"] = DataspinManager.Instance.GetStringAuthHeader();
 
-					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
+					#if !UNITY_ANDROID || UNITY_EDITOR
+						this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
+					#endif
 				}
-				else 
-					this.www = new WWW(this.url, new WWWForm());
+				else {
+					#if !UNITY_ANDROID || UNITY_EDITOR
+						this.www = new WWW(this.url, new WWWForm());
+					#endif
+				}
 			}
 			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
 				Dictionary<string, string> postHeader = new Dictionary<string, string>();
@@ -126,7 +125,9 @@ namespace Dataspin {
 					counter++;
 				}
 
-				this.www = new WWW(this.url, null, postHeader);
+				#if !UNITY_ANDROID || UNITY_EDITOR
+					this.www = new WWW(this.url, null, postHeader);
+				#endif
 			}
 		}
 
@@ -177,7 +178,7 @@ namespace Dataspin {
 			}
 			else {
 				this.responseBody = data;
-				DataspinManager.Instance.LogInfo("Request "+dataspinMethod.ToString()+" success! Response: "+this.responseBody);
+				//DataspinManager.Instance.LogInfo("Request "+dataspinMethod.ToString()+" success! Response: "+this.responseBody);
 				DataspinManager.Instance.OnRequestSuccessfullyExecuted(this);
 
 				if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, true); //If its BackLog task
