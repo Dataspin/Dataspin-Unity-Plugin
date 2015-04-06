@@ -84,12 +84,7 @@ namespace Dataspin {
 		}
 
 		public void Fire() {
-			#if UNITY_ANDROID && !UNITY_EDITOR
-				this.externalTaskPid = UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString();
-				DataspinManager.Instance.StartExternalTask(this);
-			#else
-				DataspinManager.Instance.StartChildCoroutine(ExecuteRequest());
-			#endif
+			DataspinManager.Instance.StartChildCoroutine(ExecuteRequest());
 		}
 
 		public void UpdateWWW() {
@@ -132,28 +127,44 @@ namespace Dataspin {
 		}
 
 		IEnumerator ExecuteRequest() {
-			if(Application.internetReachability != NetworkReachability.NotReachable) {
-				DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
-				yield return this.www;
-				#if UNITY_5
-					ProcessResponse(this.www.text, this.www.error);
-				#else
-					if(www.error == null) ProcessResponse(this.www.text, null);
-					else ProcessResponse(null, this.www.error);
-				#endif
-			}
-			else {
-				DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE, 
-					"Internet not reachable", "-", this));
 
-				if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, false);
-				else {
-					if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
-						Log("Internet unreachable - Putting request on tape: "+this.ToString());
-						DataspinBacklog.Instance.PutRequestOnBacklog(this);
-					}
+			//If session has been just invalidated, wait until starting a new one. 
+			if(!DataspinManager.Instance.CheckSessionValidity() && (this.dataspinMethod != DataspinRequestMethod.Dataspin_StartSession || this.dataspinMethod != DataspinRequestMethod.Dataspin_RegisterOldSession)) {
+				while(!DataspinManager.Instance.isSessionStarted) {
+					yield return new WaitForSeconds(0.1f);
 				}
 			}
+
+			#if UNITY_ANDROID && !UNITY_EDITOR
+
+				this.externalTaskPid = UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString();
+				DataspinManager.Instance.StartExternalTask(this);
+
+			#else
+
+				if(Application.internetReachability != NetworkReachability.NotReachable) {
+					DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
+					yield return this.www;
+					#if UNITY_5
+						ProcessResponse(this.www.text, this.www.error);
+					#else
+						if(www.error == null) ProcessResponse(this.www.text, null);
+						else ProcessResponse(null, this.www.error);
+					#endif
+				}
+				else {
+					DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE,
+						"Internet not reachable", "-", this));
+
+					if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, false);
+					else {
+						if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
+							Log("Internet unreachable - Putting request on tape: "+this.ToString());
+							DataspinBacklog.Instance.PutRequestOnBacklog(this);
+						}
+					}
+				}
+			#endif
 		}
 
 		public void ProcessResponse(string data, string error) {
@@ -174,7 +185,7 @@ namespace Dataspin {
 						DataspinBacklog.Instance.PutRequestOnBacklog(this);
 					}
 					//Else method should be not put on backlog
-				} 
+				}
 			}
 			else {
 				this.responseBody = data;
@@ -201,8 +212,8 @@ namespace Dataspin {
 		}
 
 		public override string ToString() {
-			return "Request Type: "+dataspinMethod.ToString() + ", URL: "+ this.url +", HTTP: "+httpMethod.ToString() + 
-			", PostData: "+ this.stringPostData + ", header: " + 
+			return "Request Type: "+dataspinMethod.ToString() + ", URL: "+ this.url +", HTTP: "+httpMethod.ToString() +
+			", PostData: "+ this.stringPostData + ", header: " +
 			((this.dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) ? DataspinManager.Instance.GetAuthHeader().ToString() : "not applicable");
 		}
 	}

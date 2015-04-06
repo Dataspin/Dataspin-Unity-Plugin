@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 
 //////////////////////////////////////////////////////////////////
-/// Dataspin SDK for Unity3D (Universal - works with all possible platforms) 
-/// Version 0.36
+/// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
+/// Version 0.4
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -80,7 +80,7 @@ namespace Dataspin {
 
         public Configurations configurations;
         public List<DataspinError> dataspinErrors;
-        
+
         public Configuration CurrentConfiguration {
             get {
                 if(currentConfiguration == null) currentConfiguration = getCurrentConfiguration();
@@ -97,10 +97,12 @@ namespace Dataspin {
 
         private bool isAdIdRetrieved;
         private bool isDeviceRegistered;
-        private bool isSessionStarted;
         private bool isUserRegistered;
-        public int sessionTimestamp;
+        private int lastActivityTimestamp;
         private int sessionId;
+
+        public bool isSessionStarted;
+        public int sessionTimestamp;
 
         public string Device_UUID {
             get { return device_uuid; }
@@ -178,7 +180,7 @@ namespace Dataspin {
                 this.uuid = PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY);
                 isUserRegistered = true;
 
-                OnUserRegistered(this.uuid); 
+                OnUserRegistered(this.uuid);
             }
         }
 
@@ -257,7 +259,7 @@ namespace Dataspin {
                 parameters.Add("end_user_device", device_uuid);
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 parameters.Add("connectivity_type", (int) GetConnectivity());
-                
+
                 #if UNITY_ANDROID && !UNITY_EDITOR
                         parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
                 #else
@@ -453,7 +455,22 @@ namespace Dataspin {
         }
 
         private void CreateTask(DataspinWebRequest request) {
+            //lastActivityTimestamp = GetTimestamp();
             OnGoingTasks.Add(request);
+        }
+
+        public bool CheckSessionValidity() {
+            if(lastActivityTimestamp + 60 > GetTimestamp()) {
+                lastActivityTimestamp = (int) GetTimestamp(); // Update session last activity timestamp 
+                return true;
+            }
+            else {
+                LogInfo("Idle for more than 60 sec, Invalidating session!");
+                isSessionStarted = false;
+                sessionId = -1;
+                StartSession();
+                return false;
+            }
         }
 
         private void RemoveFromOnGoingTasks(DataspinWebRequest request) {
@@ -521,7 +538,7 @@ namespace Dataspin {
         }
 
         private int GetCurrentPlatform() {
-            #if UNITY_ANDROID   
+            #if UNITY_ANDROID
                 return 1;
             #elif UNITY_IOS
                 return 2;
@@ -591,7 +608,7 @@ namespace Dataspin {
                 return configurations.webplayer;
             #elif UNITY_METRO || UNITY_WP8 || UNITY_WINRT || UNITY_STANDALONE_WIN
                 return configurations.WP8;
-            #else 
+            #else
                 dataspinErrors.Add(new DataspinError.ErrorTypeEnum.UNRECOGNIZED_PLATFORM, "Current platform not supported! Please send email to rafal@dataspin.io");
                 return configurations.editor;
             #endif
@@ -606,7 +623,7 @@ namespace Dataspin {
                 return helperInstance.Call<string>("GetDeviceId", unityContext);
             #else
                 return SystemInfo.deviceUniqueIdentifier;
-            #endif  
+            #endif
         }
 
         public string GetCarrier() {
@@ -618,19 +635,19 @@ namespace Dataspin {
         {
             System.Text.UTF8Encoding ue = new System.Text.UTF8Encoding();
             byte[] bytes = ue.GetBytes(strToEncrypt);
-         
+
             // encrypt bytes
             System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
             byte[] hashBytes = md5.ComputeHash(bytes);
-         
+
             // Convert the encrypted bytes back to a string (base 16)
             string hashString = "";
-         
+
             for (int i = 0; i < hashBytes.Length; i++)
             {
                 hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
             }
-         
+
             return hashString.PadLeft(32, '0');
         }
 
@@ -651,7 +668,7 @@ namespace Dataspin {
                        #else
                             dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED, request.Error, null, request));
                         #endif
-                    else 
+                    else
                         #if UNITY_5
                             dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
                         #else
@@ -666,7 +683,7 @@ namespace Dataspin {
                         #else
                             dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.QUANTITY_ERROR, request.Error, null, request));
                         #endif
-                    else 
+                    else
                         #if UNITY_5
                             dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CONNECTION_ERROR, request.Error + request.Body, null, request));
                         #else
@@ -765,7 +782,7 @@ namespace Dataspin {
 
         private string GetCurrentPlatform() {
             #if UNITY_EDITOR
-                return "Editor";    
+                return "Editor";
             #elif UNITY_ANDROID
                 return "Android";
             #elif UNITY_IPHONE
@@ -774,7 +791,7 @@ namespace Dataspin {
                 return "Webplayer";
             #elif UNITY_METRO || UNITY_WP8 || UNITY_WINRT || UNITY_STANDALONE_WIN
                 return "Windows";
-            #else 
+            #else
                 return "unknown";
             #endif
         }
@@ -802,7 +819,7 @@ namespace Dataspin {
                 case DataspinRequestMethod.Dataspin_RegisterOldSession:
                     return GetRegisterOldSessionURL();
                 default:
-                    DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CORRESPONDING_URL_MISSING, 
+                    DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CORRESPONDING_URL_MISSING,
                         "Corresponing URL Missing, please contact rafal@dataspin.io"));
                     return null;
             }
@@ -815,9 +832,9 @@ namespace Dataspin {
 
     [System.Serializable]
     public class Configurations
-    { 
+    {
         public Configuration editor;             // Configuration settings for the Unity editor
-        public Configuration webplayer;          // Configuration settings for the webplayer live interface 
+        public Configuration webplayer;          // Configuration settings for the webplayer live interface
         public Configuration iOS;                // Configuration settings for the live iOS interface
         public Configuration android;            // Configuration settings for the live Android interface
         public Configuration WP8;                // Configuration settings for the live WP8 interface
