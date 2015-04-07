@@ -129,9 +129,19 @@ namespace Dataspin {
 		IEnumerator ExecuteRequest() {
 
 			//If session has been just invalidated, wait until starting a new one. 
-			if(!DataspinManager.Instance.CheckSessionValidity() && (this.dataspinMethod != DataspinRequestMethod.Dataspin_StartSession || this.dataspinMethod != DataspinRequestMethod.Dataspin_RegisterOldSession)) {
-				while(!DataspinManager.Instance.isSessionStarted) {
-					yield return new WaitForSeconds(0.1f);
+			if( this.dataspinMethod == DataspinRequestMethod.Dataspin_StartSession || 
+				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUser || 
+				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUserDevice || 
+				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterOldSession ) {
+				//Okay
+			}
+			else {
+				Debug.Log("Session has to be verified... " + this.dataspinMethod.ToString());
+
+				if(!DataspinManager.Instance.CheckSessionValidity()) {
+					while(!DataspinManager.Instance.isSessionStarted) {
+						yield return new WaitForSeconds(0.1f);
+					}
 				}
 			}
 
