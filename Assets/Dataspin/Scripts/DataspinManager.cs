@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.4a
+/// Version 0.41
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -159,6 +159,7 @@ namespace Dataspin {
                 LogInfo((forceUpdate) ? "Forcing user data update." : "User not registered yet.");
 
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("device_id", GetDeviceId());
                 if(forceUpdate) parameters.Add("uuid", PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY));
                 if(name != "") parameters.Add("name", name);
                 if(surname != "") parameters.Add("surname", surname);
@@ -708,7 +709,7 @@ namespace Dataspin {
     public class Configuration {
         protected const string API_VERSION = "v1";                                    // API version to use
         protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";        // URL for sandbox configurations to make calls to
-        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io";           // URL for live configurations to mkae calls to
+        protected const string LIVE_BASE_URL = "http://{0}.dataspin.io:8000";           // URL for live configurations to mkae calls to
 
         protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
         protected const string PLAYER_REGISTER = "/api/{0}/register_user/";
