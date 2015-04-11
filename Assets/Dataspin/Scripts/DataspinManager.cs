@@ -159,7 +159,7 @@ namespace Dataspin {
                 LogInfo((forceUpdate) ? "Forcing user data update." : "User not registered yet.");
 
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("device_id", GetDeviceId());
+                parameters.Add("device_uuid", GetDeviceId());
                 if(forceUpdate) parameters.Add("uuid", PlayerPrefs.GetString(USER_UUID_PREFERENCE_KEY));
                 if(name != "") parameters.Add("name", name);
                 if(surname != "") parameters.Add("surname", surname);
