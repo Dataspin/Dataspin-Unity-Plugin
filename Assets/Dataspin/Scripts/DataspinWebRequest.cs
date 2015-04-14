@@ -128,6 +128,8 @@ namespace Dataspin {
 
 		IEnumerator ExecuteRequest() {
 
+			DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
+
 			//If session has been just invalidated, wait until starting a new one. 
 			if( this.dataspinMethod == DataspinRequestMethod.Dataspin_StartSession || 
 				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUser || 
@@ -153,7 +155,6 @@ namespace Dataspin {
 			#else
 
 				if(Application.internetReachability != NetworkReachability.NotReachable) {
-					DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
 					yield return this.www;
 					#if UNITY_5
 						ProcessResponse(this.www.text, this.www.error);
