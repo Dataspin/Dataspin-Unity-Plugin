@@ -147,6 +147,9 @@ namespace Dataspin {
 				}
 			}
 
+			//Re-assign sessionId in case when session has been invalidated and new ID has been assigned
+			this.postData["session"] = DataspinManager.Instance.SessionId;
+
 			#if UNITY_ANDROID && !UNITY_EDITOR
 
 				this.externalTaskPid = UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString() + "-" + UnityEngine.Random.Range(0,100000000).ToString();

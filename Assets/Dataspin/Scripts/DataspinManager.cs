@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.41b
+/// Version 0.42
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -72,7 +72,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.41b";
+        public const string version = "0.42";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -276,7 +276,7 @@ namespace Dataspin {
         }
 
         public void RegisterCustomEvent(string custom_event, string extraData = null, int forced_sess_id = -1) {
-            if(isSessionStarted) {
+            if(isSessionStarted || sessionId == -1) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("custom_event", custom_event);
                 parameters.Add("end_user_device", this.device_uuid);
@@ -295,7 +295,7 @@ namespace Dataspin {
         }
 
         public void PurchaseItem(string internal_id, int amount = 1, int forced_sess_id = -1) {
-            if(isSessionStarted) {
+            if(isSessionStarted || sessionId == -1) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
                 parameters.Add("end_user_device", this.device_uuid);
@@ -313,7 +313,7 @@ namespace Dataspin {
         }
 
         public void GetItems() {
-            if(isSessionStarted) {
+            if(isSessionStarted || sessionId == -1) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters));
@@ -324,7 +324,7 @@ namespace Dataspin {
         }
 
         public void GetCustomEvents() {
-            if(isSessionStarted) {
+            if(isSessionStarted || sessionId == -1) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters));
@@ -384,6 +384,11 @@ namespace Dataspin {
                             if(item != null) {
                                 if(OnItemPurchased != null) OnItemPurchased(item);
                                 LogInfo("Item "+ item.FullName +" purchased.");
+                            }
+                            else {
+                                DataspinItem tempItem = new DataspinItem((string) request.PostData["item"]);
+                                OnItemPurchased(tempItem);
+                                LogInfo("Item "+ (string) request.PostData["item"] +" purchased.");
                             }
                             break;
 
@@ -462,14 +467,14 @@ namespace Dataspin {
         }
 
         public bool CheckSessionValidity() {
-            if(lastActivityTimestamp + 60 > GetTimestamp()) {
+            if(lastActivityTimestamp + currentConfiguration.sessionTimeout > GetTimestamp()) {
                 lastActivityTimestamp = (int) GetTimestamp(); // Update session last activity timestamp 
                 return true;
             }
             else {
-                LogInfo("Idle for more than 60 sec, Invalidating session!");
+                LogInfo("Idle for more than " + currentConfiguration.sessionTimeout.ToString() + " sec, Invalidating session!");
                 isSessionStarted = false;
-                sessionId = -1;
+                sessionId = -1; // Negative number indicates that session has been started and then has been invalidated
                 StartSession();
                 return false;
             }
@@ -499,7 +504,7 @@ namespace Dataspin {
                 if(dataspinItems[i].InternalId == id) return dataspinItems[i];
             }
 
-            LogInfo("DataspinItem with id "+id+" not found!");
+            LogInfo("DataspinItem with id "+id+" not found in existing DataspinItems list!");
 
             return null;
         }
@@ -730,6 +735,7 @@ namespace Dataspin {
         public string ClientName;
         public string AppVersion;
         public string APIKey; //App Secret
+        public float sessionTimeout = 120;
         public bool logDebug;
         public bool sandboxMode;
 

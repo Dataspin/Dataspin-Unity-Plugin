@@ -65,6 +65,11 @@ namespace Dataspin {
 			}
 		}
 
+		public DataspinItem(string itemName) {
+			this.internal_id = itemName;
+			this.long_name = itemName;
+		}
+
 		public DataspinItem(Dictionary<string, object> dict) {
 			try {
 				this.baseDict = dict;
