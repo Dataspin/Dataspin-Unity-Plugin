@@ -138,7 +138,7 @@ namespace Dataspin {
 				//Okay
 			}
 			else {
-				Debug.Log("Session has to be verified... " + this.dataspinMethod.ToString());
+				//Debug.Log("Session has to be verified... " + this.dataspinMethod.ToString());
 
 				if(!DataspinManager.Instance.CheckSessionValidity()) {
 					while(!DataspinManager.Instance.isSessionStarted) {

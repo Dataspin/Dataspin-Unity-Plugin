@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.42
+/// Version 0.43
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -72,7 +72,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.42";
+        public const string version = "0.43";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -366,6 +366,7 @@ namespace Dataspin {
                             sessionId = (int)(long) responseDict["id"];
                             if(OnSessionStarted != null) OnSessionStarted();
                             this.sessionTimestamp = (int) GetTimestamp();
+                            this.lastActivityTimestamp = (int) GetTimestamp();
                             LogInfo("Session started!");
                             break;
 
@@ -485,7 +486,7 @@ namespace Dataspin {
         }
 
         public void StartChildCoroutine(IEnumerator coroutineMethod) {
-            LogInfo("Starting ChildCoroutine...");
+            //LogInfo("Starting ChildCoroutine...");
             StartCoroutine(coroutineMethod);
         }
 
@@ -735,7 +736,7 @@ namespace Dataspin {
         public string ClientName;
         public string AppVersion;
         public string APIKey; //App Secret
-        public float sessionTimeout = 120;
+        public int sessionTimeout = 120;
         public bool logDebug;
         public bool sandboxMode;
 
