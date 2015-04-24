@@ -128,8 +128,8 @@ public class DataspinExample : MonoBehaviour {
 		sessionActions.SetActive(false);
 	}
 
-	private void OnEventRegistered() {
-		logText.text = "Event registered!";
+	private void OnEventRegistered(string eventId) {
+		logText.text = "Event " + eventId + "registered!";
 	}
 
 	private void OnItemPurchased(DataspinItem item) {

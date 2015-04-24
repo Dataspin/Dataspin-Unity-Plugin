@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.43
+/// Version 0.45
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -72,7 +72,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.43";
+        public const string version = "0.45";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -145,7 +145,7 @@ namespace Dataspin {
         public static event Action OnDeviceRegistered;
         public static event Action OnSessionStarted;
         public static event Action OnSessionEnded;
-        public static event Action OnEventRegistered;
+        public static event Action<string> OnEventRegistered;
         public static event Action<DataspinItem> OnItemPurchased;
         public static event Action<List<DataspinItem>> OnItemsRetrieved;
         public static event Action<List<DataspinCustomEvent>> OnCustomEventsRetrieved;
@@ -166,13 +166,17 @@ namespace Dataspin {
                 if(surname != "") parameters.Add("surname", surname);
                 if(email != "") parameters.Add("email", email);
 
+                // If user is on Android device, we can fetch his/hers mail if he is signed via Gmail account
                 #if UNITY_ANDROID && !UNITY_EDITOR
                 else parameters.Add("email",helperInstance.Call<string>("GetMail", unityContext));
                 #endif
 
                 if(google_plus_id != "") parameters.Add("google_plus", google_plus_id);
                 if(facebook_id != "") parameters.Add("facebook", facebook_id);
+
+                #if UNITY_IPHONE && !UNITY_EDITOR
                 if(gamecenter_id != "") parameters.Add("gamecenter", gamecenter_id); // iOS only
+                #endif
 
 
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUser, HttpRequestMethod.HttpMethod_Post, parameters));
@@ -196,7 +200,7 @@ namespace Dataspin {
                     parameters.Add("device", GetDevice());
                     parameters.Add("uuid", GetDeviceId());
 
-                    if(ad_id != "") parameters.Add("ads_id", advertisingId);
+                    if(ad_id != "" || ad_id != null) parameters.Add("ads_id", advertisingId);
                     if(notification_id != "") parameters.Add("notification_id", notification_id);
 
                     CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters));
@@ -212,6 +216,23 @@ namespace Dataspin {
 
                 OnDeviceRegistered();
             }
+        }
+
+        public void RegisterUserAndDevice(string name = "", string surname = "", string email = "", string google_plus_id = "", 
+                                            string facebook_id = "", string gamecenter_id = "", string notification_id = "", string ad_id = "") {
+            RegisterUser(name, surname, email, google_plus_id, facebook_id, gamecenter_id, true);
+
+            this.advertisingId = ad_id;
+
+            StartCoroutine("WaitForUserRegister", notification_id);
+        }
+
+        IEnumerator WaitForUserRegister(string notification_id) {
+            // Wait until user gets registered, then register device
+            while(isUserRegistered == false) {
+                yield return new WaitForSeconds(0.2f);
+            }
+            RegisterDevice(notification_id, this.advertisingId);
         }
 
         public void StartSession(string carrier_name = "") {
@@ -391,6 +412,11 @@ namespace Dataspin {
                                 OnItemPurchased(tempItem);
                                 LogInfo("Item "+ (string) request.PostData["item"] +" purchased.");
                             }
+                            break;
+
+                        case DataspinRequestMethod.Dataspin_RegisterEvent:
+                            if(OnEventRegistered != null) OnEventRegistered((string)request.PostData["custom_event"]);
+                            LogInfo("Event "+ (string) request.PostData["custom_event"] +"registered!");
                             break;
 
                         case DataspinRequestMethod.Dataspin_GetItems:
