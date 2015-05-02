@@ -158,9 +158,63 @@ public class DataspinExample : MonoBehaviour {
 
 	private void OnErrorOccured(DataspinError error) {
 		logText.text = error.ToString();
+		
+		switch(error.Request.DataspinMethod) {
+			case(DataspinRequestMethod.Dataspin_StartSession):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_EndSession):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_RegisterEvent):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_PurchaseItem):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_RegisterUser):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_RegisterUserDevice):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_RegisterOldSession):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_GetCustomEvents):
+				// Do something
+				break;
+			case(DataspinRequestMethod.Dataspin_GetItems):
+				// Do something
+				break;
+		}
+		
 		switch(error.ErrorType) {
 			case(DataspinError.ErrorTypeEnum.QUANTITY_ERROR):
 				logText.text = "Item out of stock, Item: "+error.Request.PostData["item"];
+				break;
+			case(DataspinError.ErrorTypeEnum.API_KEY_NOT_PROVIDED):
+				logText.text = "Api key not provided";
+				break;
+			case(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED):
+				break;
+			case(DataspinError.ErrorTypeEnum.INTERNAL_PLUGIN_ERROR):
+				break;
+			case(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE):
+				break;
+			case(DataspinError.ErrorTypeEnum.UNRECOGNIZED_PLATFORM):
+				break;
+			case(DataspinError.ErrorTypeEnum.USER_NOT_REGISTERED):
+				break;
+			case(DataspinError.ErrorTypeEnum.CORRESPONDING_URL_MISSING): //Impossible for now
+				break;
+			case(DataspinError.ErrorTypeEnum.JSON_PROCESSING_ERROR):
+				break;
+			case(DataspinError.ErrorTypeEnum.BACKLOG_CORRUPTED):
+				break;
+			case(DataspinError.ErrorTypeEnum.BACKLOG_FLUSH_ERROR):
+				break;
+			case(DataspinError.ErrorTypeEnum.CONNECTION_ERROR):
 				break;
 			default:
 				break;

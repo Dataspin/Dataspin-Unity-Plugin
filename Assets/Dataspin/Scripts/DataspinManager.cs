@@ -775,10 +775,6 @@ namespace Dataspin {
             }
         }
 
-        public virtual string GetAuthTokenURL() {
-            return BaseUrl + System.String.Format(AUTH_TOKEN, API_VERSION);
-        }
-
         public virtual string GetPlayerRegisterURL() {
             return BaseUrl + System.String.Format(PLAYER_REGISTER, API_VERSION);
         }
@@ -833,8 +829,6 @@ namespace Dataspin {
 
         public string GetMethodCorrespondingURL(DataspinRequestMethod dataspinMethod) {
             switch(dataspinMethod) {
-                case DataspinRequestMethod.Dataspin_GetAuthToken:
-                    return GetAuthTokenURL();
                 case DataspinRequestMethod.Dataspin_RegisterUser:
                     return GetPlayerRegisterURL();
                 case DataspinRequestMethod.Dataspin_RegisterUserDevice:
@@ -894,7 +888,6 @@ namespace Dataspin {
 
     public enum DataspinRequestMethod {
         Unknown = -1234,
-        Dataspin_GetAuthToken = -1,
         Dataspin_RegisterUser = 0,
         Dataspin_RegisterUserDevice = 1,
         Dataspin_StartSession = 2,
