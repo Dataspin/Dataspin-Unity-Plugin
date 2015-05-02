@@ -91,23 +91,16 @@ namespace Dataspin {
 			var encoding = new System.Text.UTF8Encoding();
 
 			if(httpMethod == HttpRequestMethod.HttpMethod_Post) {
-				if(dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) {
-					this.stringPostData = Json.Serialize(this.postData);
+				this.stringPostData = Json.Serialize(this.postData);
 
-					Dictionary<string, string> postHeader = new Dictionary<string, string>();
-					postHeader["Content-Type"] = "application/json";
-					postHeader["Content-Length"] = stringPostData.Length.ToString();
-					postHeader["Authorization"] = DataspinManager.Instance.GetStringAuthHeader();
+				Dictionary<string, string> postHeader = new Dictionary<string, string>();
+				postHeader["Content-Type"] = "application/json";
+				postHeader["Content-Length"] = stringPostData.Length.ToString();
+				postHeader["Authorization"] = DataspinManager.Instance.GetStringAuthHeader();
 
-					#if !UNITY_ANDROID || UNITY_EDITOR
-						this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
-					#endif
-				}
-				else {
-					#if !UNITY_ANDROID || UNITY_EDITOR
-						this.www = new WWW(this.url, new WWWForm());
-					#endif
-				}
+				#if !UNITY_ANDROID || UNITY_EDITOR
+					this.www = new WWW(this.url, encoding.GetBytes(stringPostData), postHeader);
+				#endif
 			}
 			else if(httpMethod == HttpRequestMethod.HttpMethod_Get) {
 				Dictionary<string, string> postHeader = new Dictionary<string, string>();
@@ -227,8 +220,7 @@ namespace Dataspin {
 
 		public override string ToString() {
 			return "Request Type: "+dataspinMethod.ToString() + ", URL: "+ this.url +", HTTP: "+httpMethod.ToString() +
-			", PostData: "+ this.stringPostData + ", header: " +
-			((this.dataspinMethod != DataspinRequestMethod.Dataspin_GetAuthToken) ? DataspinManager.Instance.GetAuthHeader().ToString() : "not applicable");
+			", PostData: "+ this.stringPostData + ", header: " + DataspinManager.Instance.GetAuthHeader().ToString();
 		}
 	}
 }

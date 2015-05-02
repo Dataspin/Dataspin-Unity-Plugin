@@ -1,0 +1,10 @@
+{
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "."
+        }
+    ],
+    "solution_file": "./Dataspin_2.0-Unity-Plugin-csharp.sln"
+}

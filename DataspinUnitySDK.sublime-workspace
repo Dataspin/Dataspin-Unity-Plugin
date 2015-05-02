@@ -1,0 +1,1045 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"coin",
+				"coinpack_id"
+			],
+			[
+				"Dataspin",
+				"DataspinTestModule"
+			],
+			[
+				"Dataspi",
+				"DataspinTestModule"
+			],
+			[
+				"hei",
+				"heightModifiers"
+			],
+			[
+				"noise",
+				"noiseTextureScale"
+			],
+			[
+				"height",
+				"heightModifiers"
+			],
+			[
+				"heigh",
+				"heightMultiplier"
+			],
+			[
+				"color",
+				"colorsGradient"
+			],
+			[
+				"c",
+				"colorGradient"
+			],
+			[
+				"parti",
+				"particleSystem"
+			],
+			[
+				"par",
+				"particlesBudgetLimit"
+			],
+			[
+				"target",
+				"targetVertices"
+			],
+			[
+				"tar",
+				"targetObject"
+			],
+			[
+				"UNITY_",
+				"UNITY_IPHONE"
+			],
+			[
+				"not",
+				"notification_id"
+			],
+			[
+				"Regi",
+				"RegisterDevice"
+			],
+			[
+				"Wai",
+				"WaitForUserRegister"
+			],
+			[
+				"game",
+				"gamecenter_id"
+			],
+			[
+				"google",
+				"google_plus_id"
+			],
+			[
+				"iris",
+				"irisDS"
+			],
+			[
+				"inde",
+				"indexNum"
+			],
+			[
+				"sear",
+				"searchInListTime"
+			],
+			[
+				"sea",
+				"searchInBSTTime"
+			],
+			[
+				"bbst",
+				"bbstMasterRoot"
+			],
+			[
+				"se",
+				"searchInBSTTime"
+			],
+			[
+				"remove",
+				"removeFromListTime"
+			],
+			[
+				"removeF",
+				"removeFromListTime"
+			],
+			[
+				"remo",
+				"removeFromAVLTime"
+			],
+			[
+				"raw",
+				"rawDataIterator"
+			],
+			[
+				"rawD",
+				"rawData"
+			],
+			[
+				"rand",
+				"randIndex"
+			],
+			[
+				"rawDa",
+				"rawDataCount"
+			],
+			[
+				"ra",
+				"rawDataIterator"
+			],
+			[
+				"left",
+				"leftChild"
+			],
+			[
+				"search",
+				"searchByIndex"
+			],
+			[
+				"print",
+				"printPostOrder"
+			],
+			[
+				"remov",
+				"removeFromTree"
+			],
+			[
+				"righ",
+				"rightChild"
+			],
+			[
+				"lis",
+				"listTime"
+			],
+			[
+				"resul",
+				"resultsFile"
+			],
+			[
+				"index",
+				"indexNum"
+			],
+			[
+				"Elem",
+				"ElemStruct"
+			],
+			[
+				"Player",
+				"PlayerPrefs"
+			],
+			[
+				"size",
+				"sizeof"
+			],
+			[
+				"la",
+				"lastActivityTimestamp"
+			],
+			[
+				"dataspi",
+				"dataspinManager"
+			],
+			[
+				"sess",
+				"sessionTimeout"
+			],
+			[
+				"DataspinM",
+				"DataspinManager"
+			],
+			[
+				"po",
+				"postData"
+			],
+			[
+				"div",
+				"divIndex"
+			],
+			[
+				"usd",
+				"total_usd_revenue"
+			],
+			[
+				"GetDe",
+				"GetDeviceId"
+			],
+			[
+				"predi",
+				"predictions"
+			],
+			[
+				"my_",
+				"my_list"
+			],
+			[
+				"user",
+				"userid"
+			],
+			[
+				"data",
+				"dataspinMethod"
+			],
+			[
+				"session",
+				"sessionId"
+			],
+			[
+				"UNITY",
+				"UNITY_EDITOR"
+			],
+			[
+				"Tracel",
+				"TracelyManager"
+			],
+			[
+				"Tra",
+				"TracelyManager"
+			],
+			[
+				"end",
+				"end_timestamp"
+			],
+			[
+				"fake",
+				"fake_id"
+			],
+			[
+				"Exce",
+				"ExceptionHandlerPlugin"
+			],
+			[
+				"code",
+				"codeLabel"
+			],
+			[
+				"Data",
+				"Dataspin"
+			],
+			[
+				"device",
+				"device_uuid"
+			],
+			[
+				"pur",
+				"purse_B"
+			],
+			[
+				"hi",
+				"hidden_to_out"
+			],
+			[
+				"context",
+				"unityContext"
+			],
+			[
+				"name",
+				"nameText"
+			],
+			[
+				"bac",
+				"backLogMethods"
+			],
+			[
+				"Datas",
+				"DataspinRequestMethod"
+			],
+			[
+				"UNI",
+				"UNITY_EDITOR"
+			],
+			[
+				"for",
+				"forceUpdate"
+			],
+			[
+				"gam",
+				"gamecenter_id"
+			],
+			[
+				"face",
+				"facebook_id"
+			],
+			[
+				"googl",
+				"google_plus_id"
+			],
+			[
+				"ad",
+				"advertisingId"
+			],
+			[
+				"unityC",
+				"unityContext"
+			],
+			[
+				"AndroidJ",
+				"AndroidJavaObject"
+			],
+			[
+				"AndroidJava",
+				"AndroidJavaObject"
+			],
+			[
+				"ex",
+				"externalPid"
+			],
+			[
+				"Extern",
+				"ExternalTaskPid"
+			],
+			[
+				"Log",
+				"LogInfo"
+			],
+			[
+				"Uni",
+				"UNITY_EDITOR"
+			],
+			[
+				"helper",
+				"helperInstance"
+			],
+			[
+				"API",
+				"APIKey"
+			],
+			[
+				"curren",
+				"currentConfiguration"
+			],
+			[
+				"Adn",
+				"AndroidJavaClass"
+			],
+			[
+				"Android",
+				"AndroidJavaObject"
+			],
+			[
+				"GetCurr",
+				"getCurrentConfiguration"
+			],
+			[
+				"curr",
+				"currentConfiguration"
+			],
+			[
+				"y_",
+				"y_randomLimit"
+			],
+			[
+				"x_",
+				"x_randomLimit"
+			],
+			[
+				"gra",
+				"colorsGradient"
+			],
+			[
+				"dev",
+				"deviceUniqueIdentifier"
+			],
+			[
+				"Sy",
+				"SystemInfo"
+			],
+			[
+				"y_mesh",
+				"y_meshResolution"
+			],
+			[
+				"per",
+				"perlinNoiseOffset"
+			],
+			[
+				"me",
+				"x_meshResolution"
+			],
+			[
+				"x_m",
+				"x_meshSpacing"
+			],
+			[
+				"y_m",
+				"y_meshSpacing"
+			],
+			[
+				"perlinNoise",
+				"perlinNoiseScale"
+			],
+			[
+				"part",
+				"particlesArray"
+			],
+			[
+				"partic",
+				"particlesArray"
+			],
+			[
+				"y",
+				"yPos"
+			],
+			[
+				"perlin",
+				"perlinNoiseScale"
+			],
+			[
+				"Upd",
+				"UpdateWWW"
+			],
+			[
+				"itera",
+				"tasksListIterator"
+			],
+			[
+				"task",
+				"tasksArray"
+			],
+			[
+				"tasksLis",
+				"tasksListIterator"
+			],
+			[
+				"tasks",
+				"tasksArray"
+			],
+			[
+				"tasksl",
+				"tasksListIterator"
+			],
+			[
+				"backLog",
+				"backlogRequestsList"
+			],
+			[
+				"ta",
+				"TaskPid"
+			],
+			[
+				"Reset",
+				"ResetFlushTimer"
+			],
+			[
+				"backLo",
+				"backlogSessionsList"
+			],
+			[
+				"sessioLi",
+				"backlogSessionsList"
+			],
+			[
+				"offl",
+				"offlineSessionId"
+			],
+			[
+				"fak",
+				"fake_id"
+			],
+			[
+				"backlo",
+				"backlogSessionsList"
+			],
+			[
+				"backlog",
+				"backlogRequestsList"
+			],
+			[
+				"reque",
+				"request"
+			],
+			[
+				"requests",
+				"backlogRequestsList"
+			],
+			[
+				"Http",
+				"HttpRequestMethod"
+			],
+			[
+				"Sess",
+				"SessionsPreferenceKey"
+			],
+			[
+				"BackLog",
+				"backlogRequestsList"
+			],
+			[
+				"back",
+				"backlogRequestsList"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Assets/Dataspin/Scripts/DataspinCustomEvent.cs",
+			"settings":
+			{
+				"buffer_size": 763,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 368.0,
+		"last_filter": "packageins",
+		"selected_items":
+		[
+			[
+				"packageins",
+				"Package Control: Install Package"
+			],
+			[
+				"package",
+				"Package Control: List Packages"
+			],
+			[
+				"insta",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"theme",
+				"Colorsublime: Browse Themes"
+			],
+			[
+				"",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"color",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 417.0
+	},
+	"console":
+	{
+		"height": 114.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"import urllib2,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); os.makedirs( ipp ) if not os.path.exists(ipp) else None; urllib2.install_opener( urllib2.build_opener( urllib2.ProxyHandler()) ); by = urllib2.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); open( os.path.join( ipp, pf), 'wb' ).write(by) if dh == h else None; print('Error validating download (got %s instead of %s), please try manual install' % (dh, h) if dh != h else 'Please restart Sublime Text to finish installation')"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts"
+	],
+	"file_history":
+	[
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts/DataspinCustomEvent.cs",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Dataspin_2.0-Unity-Plugin.sln",
+		"/Users/rafal/C_Asteroids/main.c",
+		"/Users/rafal/Documents/Unreal Projects/MyTestProject/Plugins/BPlugin/BPlugin.uplugin",
+		"/Users/rafal/Documents/Unreal Projects/MyTestProject/Plugins/BPlugin/Source/BPlugin/BPlugin.Build.cs",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Source/Module/Module.Build.cs",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Source/Module/Private/ModulePrivatePCH.h",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Source/Module/Private/Module.cpp",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Source/Module/Private/Module.h",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Source/Module/Public/IModule.h",
+		"/Users/rafal/Documents/Unreal Projects/DataspinProject/Plugins/Module/Module.uplugin",
+		"/Users/rafal/Documents/Unreal Projects/MyTestProject/Plugins/BPlugin/Source/BPlugin/Public/IBPlugin.h",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Dataspin/Scripts/DataspinManager.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/pluginy_managers/DataspinManagerOld.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/IABManager.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/IABClick.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/upgradesFramework.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Editor/DeletePlayerPrefs.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/checkPromo.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/mainSteering.js",
+		"/Users/rafal/Documents/Unreal Projects/Tutorial/Plugins/DataspinTest/DataspinTest.uplugin",
+		"/Users/rafal/Documents/Unreal Projects/UnrealFirstProject/Plugins/DataspinTest/Source/DataspinTest/Private/DataspinTestModule.cpp",
+		"/Users/rafal/Documents/Unreal Projects/UnrealFirstProject/Plugins/DataspinTest/Source/DataspinTest/Private/DataspinTestModule.h",
+		"/Users/rafal/Documents/Unreal Projects/UnrealFirstProject/Plugins/DataspinTest/DataspinTest.uplugin",
+		"/Users/rafal/Documents/Unreal Projects/UnrealFirstProject/Plugins/DataspinTest/Source/DataspinTest/DataspinTest.Build.cs",
+		"/Users/rafal/Documents/Unreal Projects/UnrealFirstProject/Plugins/DataspinTest/Source/DataspinTest/Private/DataspinTestPCH.h",
+		"/Users/rafal/Desktop/Runner.sh",
+		"/Applications/VSCode-osx/Visual Studio Code.app/Contents/MacOS/Atom",
+		"/Users/rafal/Unity Projects/ProceduralRacerProject/Assets/LeanTween/Plugins/LeanTween.cs",
+		"/Users/rafal/Unity Projects/LoadingAnimations/Assets/Rotation.cs",
+		"/Users/rafal/Desktop/Studia/sopy",
+		"/Users/rafal/Unity Projects/Flat Shaded Terrain Generator/Assets/Scripts/TerrainGenerator.cs",
+		"/Users/rafal/Unity Projects/ParticleSeaTutorial/Assets/ParticleSea.cs",
+		"/Users/rafal/Unity Projects/Flat Shaded Terrain Generator/Assets/Scripts/DirectionWanderer.cs",
+		"/Users/rafal/Dysk Google/prog.c",
+		"/Users/rafal/Unity Projects/Flat Shaded Terrain Generator/Assets/Scripts/ParticleSea.cs",
+		"/Users/rafal/Unity Projects/Flat Shaded Terrain Generator/Assets/VertexColorShader.shader",
+		"/Users/rafal/Documents/Unreal Projects/Tutorial/Intermediate/Android/APK/src/com/epicgames/ue4/GameActivity.java",
+		"/Users/rafal/Unity Projects/ParticleSea/.gitignore",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts/DataspinWebRequest.cs",
+		"/Users/rafal/Documents/Unreal Projects/Tutorial/Intermediate/Android/APK/jni/Android.mk",
+		"/Users/rafal/Unity Projects/ParticleSea/Assets/Scripts/ParticleSea.cs",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts/DataspinManager.cs",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Example/DataspinExample.cs",
+		"/Users/rafal/Unity Projects/ParticleSea/Assets/ParticleSea.cs",
+		"/Users/rafal/Unity Projects/ProceduralRacerProject/Assets/Editor/ClosestSplinePointEditor.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Editor/CameraShakeEditor.cs",
+		"/Users/rafal/Unity Projects/ParticleMesher/Assets/Editor/ParticleMesherEditor.cs",
+		"/Users/rafal/turnstile_110507.txt",
+		"/Users/rafal/Unity Projects/ParticleMesher/Assets/Scripts/ParticleMesher.cs",
+		"/Users/rafal/Downloads/Birdman (2014)/Birdman.2014.720p.BluRay.x264.YIFY.mpl",
+		"/Users/rafal/Unity Projects/MNDFCK_Android/MNDFCK/Assets/NGUI/Scripts/Editor/ActiveAnimationEditor.cs",
+		"/Users/rafal/Library/Application Support/Sublime Text 3/Packages/User/Distraction Free.sublime-settings",
+		"/Users/rafal/Desktop/Iris_Dataset/iris.py",
+		"/Users/rafal/AiSD/Binary Tree/Binary Tree/prog.c",
+		"/Users/rafal/AiSD/2/quick.c",
+		"/Users/rafal/AiSD/2/heap.c",
+		"/Users/rafal/AiSD/2/shell.c",
+		"/Users/rafal/AiSD/2/counting.c",
+		"/Volumes/USB/AISD/BST_Programy/datagen.c",
+		"/Users/rafal/Unity Projects/ParticleSea/Assets/AlphaPosShader.shader",
+		"/Users/rafal/AiSD/Binary Tree/Binary Tree/datagen.c",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/targetScoreModule.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/realtimeManager.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/mailIntent.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Dataspin/Example/DataspinExample.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/packPrices.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/awardTapjoyCreditsOnDS.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/energyRenew.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/dsCrForLogin.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/dailyDaysHandler.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/getWarWidget.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/pluginy_managers/GCMManager.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/socialShit/gPlusStuff.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/shieldPurchase.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/firstRun.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/DataspinAchievement.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/DataspinPrices.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/modulePurchase.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/multiplayer/getChallenges.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/multiplayer/nickname.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/thisAddDsBalance.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/power_upper.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/escapeHW.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/dataspinCustomevent.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/multiplayer/getWar.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/fasterGetWar.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/fbAppRequest.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/pluginy_managers/DataspinManager.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Plugins/JSONParse.js",
+		"/Users/rafal/Desktop/titanic.py",
+		"/Users/rafal/Desktop/learning.py",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/socialShit/submitPlay.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/codeRedeemer.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/ManagerOfAds.cs",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/carousel.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/socialShit/gPlusJSListener.js",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/upgrades/shieldRenderer.js",
+		"/Users/rafal/Desktop/czas.py",
+		"/Volumes/USB/2/merge.c",
+		"/Volumes/USB/2/heap.c",
+		"/Users/rafal/AiSD/Binary Tree/Binary Tree/bst_1000000.txt",
+		"/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Scripts/socialShit/GPlusManager.cs",
+		"/Users/rafal/Desktop/sopy",
+		"/Users/rafal/Desktop/SOP_Cwiczenia.sh",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts/DataspinItem.cs",
+		"/Users/rafal/Desktop/tymquick.c",
+		"/Users/rafal/Desktop/counting_wyniki1.txt",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Plugins/Android/AndroidManifest_Dataspin.xml",
+		"/Users/rafal/Desktop/superquick.c",
+		"/Users/rafal/AiSD/2/shell_wyniki1.txt",
+		"/Users/rafal/AiSD/2/counting_wyniki1.txt",
+		"/Volumes/USB/AISD1/bs.txt",
+		"/Volumes/USB/1/bubble_wyniki1.txt",
+		"/Users/rafal/AiSD/2/merge_wyniki1.txt",
+		"/Users/rafal/AiSD/2/quick_super.txt",
+		"/Users/rafal/AiSD/2/heap_super.txt",
+		"/Volumes/USB/2/shell.c",
+		"/Volumes/USB/2/quick.c",
+		"/Volumes/USB/2/counting.c",
+		"/Volumes/USB/2/bubble.c",
+		"/Volumes/USB/1/shell.c",
+		"/Volumes/USB/1/quick.c",
+		"/Volumes/USB/1/merge.c",
+		"/Volumes/USB/1/heap.c",
+		"/Volumes/USB/1/bubble.c",
+		"/Volumes/USB/1/counting.c",
+		"/Users/rafal/Desktop/sheet.py"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"advertisingId",
+			"ads)id",
+			"adv",
+			"GetAdvertisingInfo",
+			"advertId",
+			"ads",
+			"StartSession",
+			"public",
+			"LTRect",
+			"move(",
+			"bottomUI",
+			"disqus",
+			"fclose",
+			"getsample",
+			"Profiler",
+			"GetSample",
+			"setmesh",
+			"meshColors",
+			"splitvertices",
+			"splitVertices",
+			"generation",
+			"colorsGradient",
+			"positions",
+			"spacing",
+			"class",
+			"oneventregistered",
+			"advertisingId",
+			"searchByIndex",
+			"searchbyindex",
+			"searchInBSTTime",
+			"searchByIndex",
+			"change",
+			"_insertToList",
+			"element",
+			"char[11]",
+			"340",
+			"authentication",
+			"onauth",
+			"advertising",
+			"\n			",
+			"DataspinManager",
+			"_RegisterCustomEvent",
+			"multiplayerRez",
+			"instantiateObstacle",
+			"rez",
+			"multiplayerRez",
+			"onsessionstarted",
+			"sessiontimeout",
+			"sessionTimeout",
+			"lastActivityTimestamp",
+			"currentConfiguration",
+			"lastActivityTimestamp",
+			"dataspinmanager",
+			"DataspinManager",
+			"authenticationSucceededEvent",
+			"FindItemById",
+			"registerevent",
+			"configuration",
+			"getCurrentConfiguration",
+			"startsession",
+			"helperInstance",
+			".",
+			", ",
+			"sortIndex",
+			"getdeviceid",
+			".",
+			", ",
+			".",
+			", ",
+			".",
+			", ",
+			".",
+			", ",
+			"Quick",
+			".",
+			" - ",
+			"rewind",
+			"mbe",
+			"adcolon",
+			"issession",
+			"GetTimestamp",
+			"sessionId",
+			"isSessionStarted = false;",
+			"isSessionStarted",
+			"issessionstarted = false",
+			"issession",
+			"webrequest",
+			"helperInstance",
+			"execute",
+			"CreateTask",
+			"RemoveFromOnGoingTasks",
+			"OnRequestSuccessfullyExecuted",
+			"log",
+			"\\xe4",
+			" ",
+			" - ",
+			",",
+			" - ",
+			",",
+			" - ",
+			",",
+			" - ",
+			",",
+			" - ",
+			".",
+			" - ",
+			".",
+			",",
+			". ",
+			" - ",
+			",",
+			", ",
+			" - ",
+			".",
+			" - ",
+			"sendhandledexception",
+			"offlinesession",
+			"RegisterExceptionHandler",
+			"PluginHandling",
+			"confetti",
+			"flush",
+			"fake_id",
+			"offlineSessionId",
+			"fake_id",
+			"sessionTimestamp",
+			"offlineSessionId",
+			"dt",
+			"ExecuteNextTask"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"// Profiler",
+			"char[20]",
+			"DataspinManagerOld",
+			"dataspinManager",
+			",",
+			":",
+			"currentPos",
+			",",
+			":",
+			",",
+			":",
+			",",
+			":",
+			",",
+			":",
+			"",
+			",",
+			":",
+			", ",
+			"",
+			", ",
+			",",
+			", ",
+			".",
+			";",
+			", ",
+			",",
+			", ",
+			"TracelyManager"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Assets/Dataspin/Scripts/DataspinCustomEvent.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 763,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								396,
+								396
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 86.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.variable_get":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "DataspinUnitySDK.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 321.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
