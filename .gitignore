@@ -25,6 +25,7 @@ ExportedObj/
 *.user
 *.unityproj
 *.booproj
+*.sublime-project
 
 # ============ #
 # OS generated #
