@@ -220,6 +220,7 @@ namespace Dataspin {
 
 			ResetFlushTimer();
 
+			StopBacklogRefresh();
 			StartCoroutine("UpdateOfflineSessionLength");
 		}
 
