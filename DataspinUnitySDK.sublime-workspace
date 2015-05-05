@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"name",
+				"prefabName"
+			],
+			[
 				"coin",
 				"coinpack_id"
 			],
@@ -280,10 +284,6 @@
 				"unityContext"
 			],
 			[
-				"name",
-				"nameText"
-			],
-			[
 				"bac",
 				"backLogMethods"
 			],
@@ -526,6 +526,14 @@
 				"buffer_size": 763,
 				"line_ending": "Unix"
 			}
+		},
+		{
+			"file": "Assets/Dataspin/Scripts/DataspinManager.cs",
+			"settings":
+			{
+				"buffer_size": 40245,
+				"line_ending": "Unix"
+			}
 		}
 	],
 	"build_system": "",
@@ -536,9 +544,13 @@
 	"command_palette":
 	{
 		"height": 368.0,
-		"last_filter": "packageins",
+		"last_filter": "omni",
 		"selected_items":
 		[
+			[
+				"omni",
+				"OmniSharpSublime: Go to implementation"
+			],
 			[
 				"packageins",
 				"Package Control: Install Package"
@@ -590,13 +602,12 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin",
-		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets",
-		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin",
-		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts"
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin"
 	],
 	"file_history":
 	[
+		"/Users/rafal/Library/Application Support/Sublime Text 3/Packages/User/C#.sublime-settings",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/DataspinUnitySDK.sublime-project",
 		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts/DataspinCustomEvent.cs",
 		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Dataspin_2.0-Unity-Plugin.sln",
 		"/Users/rafal/C_Asteroids/main.c",
@@ -722,9 +733,7 @@
 		"/Volumes/USB/1/quick.c",
 		"/Volumes/USB/1/merge.c",
 		"/Volumes/USB/1/heap.c",
-		"/Volumes/USB/1/bubble.c",
-		"/Volumes/USB/1/counting.c",
-		"/Users/rafal/Desktop/sheet.py"
+		"/Volumes/USB/1/bubble.c"
 	],
 	"find":
 	{
@@ -917,7 +926,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -944,6 +953,36 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Assets/Dataspin/Scripts/DataspinManager.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 40245,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7461,
+								7461
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1941.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,

@@ -119,14 +119,19 @@ namespace Dataspin {
 
 			for(int i = 0; i < backlogSessionsList.Count; i++) {
 				Dictionary<string, object> oldSessionDataDict = new Dictionary<string, object>(); 
-				oldSessionDataDict["end_user_device"] = DataspinManager.Instance.GetDeviceId();
+				oldSessionDataDict["end_user_device"] = DataspinManager.Instance.Device_UUID;
 				oldSessionDataDict["app_version"] = DataspinManager.Instance.CurrentConfiguration.AppVersion;
 				oldSessionDataDict["dt"] = (int)(GetTimestamp() - (double) backlogSessionsList[i]["start_timestamp"]);
 				oldSessionDataDict["length"] = (double) backlogSessionsList[i]["end_timestamp"] - (double) backlogSessionsList[i]["start_timestamp"];
 
-				tasksArray[i] = new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, 
+				try {
+					tasksArray[i] = new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, 
 					HttpRequestMethod.HttpMethod_Post, oldSessionDataDict, 
 					(int)(long)backlogSessionsList[i]["fake_id"], (string) backlogSessionsList[i]["url"]);
+				}
+				catch(Exception e) {
+					Debug.Log("Error while creating tasksArray: "+e.Message+", Stack: "+e.StackTrace);
+				}
 			}
 
 			// Session Enqueued. Now execute all requests. If request is executed,
@@ -135,7 +140,6 @@ namespace Dataspin {
 
 			// After this request is executed, session id is retrieved. 
 			// Assign this session id into all subrequests and then
-
 
 			for(int j = 0; j < backlogRequestsList.Count; j++) {
 				tasksArray[j + backlogSessionsList.Count] = new DataspinWebRequest( (DataspinRequestMethod) (int)(long)backlogRequestsList[j]["dataspin_method"],
@@ -178,7 +182,7 @@ namespace Dataspin {
 
 			if(isOfflineSession) {
 				request.PostData["dt"] = (int)(GetTimestamp() - offlineSessionStart);
-				request.PostData["session"] = isOfflineSession;
+				request.PostData["session"] = offlineSessionId;
 			}
 			else {
 				request.PostData["dt"] = (int)(GetTimestamp() - DataspinManager.Instance.sessionTimestamp);
@@ -211,6 +215,8 @@ namespace Dataspin {
 			currentSession["start_timestamp"] = offlineSessionStart;
 			currentSession["end_timestamp"] = offlineSessionStart + 60;
 			backlogSessionsList.Add(currentSession);
+
+			DataspinManager.Instance.isSessionStarted = true;
 
 			ResetFlushTimer();
 
@@ -357,6 +363,10 @@ namespace Dataspin {
 				}
 			}
 			return null;
+		}
+
+		public void StopBacklogRefresh() {
+			StopCoroutine("UpdateOfflineSessionLength");
 		}
 
 		IEnumerator UpdateOfflineSessionLength() {

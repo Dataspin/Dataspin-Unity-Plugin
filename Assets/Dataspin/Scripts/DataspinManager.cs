@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.45
+/// Version 0.46
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -200,7 +200,11 @@ namespace Dataspin {
                     parameters.Add("device", GetDevice());
                     parameters.Add("uuid", GetDeviceId());
 
-                    if(ad_id != "" || ad_id != null) parameters.Add("ads_id", advertisingId);
+                    if(ad_id != "" && ad_id != null) parameters.Add("ads_id", ad_id);
+                    else {
+                        if(advertisingId != null && advertisingId != "") parameters.Add("ads_id", advertisingId);
+                    }
+
                     if(notification_id != "") parameters.Add("notification_id", notification_id);
 
                     CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters));
@@ -260,6 +264,7 @@ namespace Dataspin {
                 }
             }
             else {
+                LogInfo("No internet connection! Starting offline session...");
                 DataspinBacklog.Instance.CreateOfflineSession();
             }
         }
@@ -388,6 +393,7 @@ namespace Dataspin {
                             if(OnSessionStarted != null) OnSessionStarted();
                             this.sessionTimestamp = (int) GetTimestamp();
                             this.lastActivityTimestamp = (int) GetTimestamp();
+                            DataspinBacklog.Instance.StopBacklogRefresh();
                             LogInfo("Session started!");
                             break;
 
@@ -741,7 +747,7 @@ namespace Dataspin {
     #region Configuration Collections Class
     public class Configuration {
         protected const string API_VERSION = "v1";                                    // API version to use
-        protected const string SANDBOX_BASE_URL = "http://54.247.78.173:8888";        // URL for sandbox configurations to make calls to
+        protected const string SANDBOX_BASE_URL = "http://hyperbees.dataspin.io:8000";        // URL for sandbox configurations to make calls to
         protected const string LIVE_BASE_URL = "http://{0}.dataspin.io";           // URL for live configurations to mkae calls to
 
         protected const string AUTH_TOKEN = "/api/{0}/auth_token/";
