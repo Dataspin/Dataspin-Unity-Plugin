@@ -16,12 +16,11 @@ public class DataspinExample : MonoBehaviour {
 	public Text emailText;
 
 	public InputField itemAmountField;
+	public InputField customEventId;
 	public InputField customEventData;
 	public ComboBox comboItemsBox;
-	public ComboBox comboEventsBox;
 
 	public Button comboItemsButton;
-	public Button comboEventsButton;
 
 	public Button startSessionButton;
 	public GameObject sessionActions;
@@ -34,7 +33,6 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnEventRegistered += OnEventRegistered;
 		DataspinManager.OnItemPurchased += OnItemPurchased;
 		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
-		DataspinManager.OnCustomEventsRetrieved += OnCustomEventsRetrieved;
 		DataspinManager.OnErrorOccured += OnErrorOccured;
 	}
 
@@ -44,7 +42,6 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnSessionStarted -= OnSessionStarted;
 		DataspinManager.OnItemsRetrieved -= OnItemsRetrieved;
 		DataspinManager.OnEventRegistered -= OnEventRegistered;
-		DataspinManager.OnCustomEventsRetrieved -= OnCustomEventsRetrieved;
 		DataspinManager.OnErrorOccured -= OnErrorOccured;
 	}
 
@@ -73,7 +70,8 @@ public class DataspinExample : MonoBehaviour {
 	}
 
 	public void GetCustomEvents() {
-		DataspinManager.Instance.GetCustomEvents();
+		// DEPRECATED
+		// DataspinManager.Instance.GetCustomEvents();
 	}
 
 	public void ReloadScene() {
@@ -99,8 +97,7 @@ public class DataspinExample : MonoBehaviour {
 	}
 
 	public void RegisterCustomEvent() {
-		DataspinCustomEvent ev = DataspinManager.Instance.FindEventByName(comboEventsBox.selected.textComponent.text);
-		DataspinManager.Instance.RegisterCustomEvent(ev.Id, customEventData.text);
+		DataspinManager.Instance.RegisterCustomEvent(customEventId.text, customEventData.text);
 	}
 
 	#region Listeners
@@ -146,16 +143,6 @@ public class DataspinExample : MonoBehaviour {
 		comboItemsButton.interactable = true;
 	}
 
-	private void OnCustomEventsRetrieved(List<DataspinCustomEvent> dataspinEventsList) {
-		Debug.Log("OnCustomEventsRetrieved: "+dataspinEventsList.Count);
-		logText.text = "";
-		for(int i = 0; i < dataspinEventsList.Count; i++) {
-			logText.text += dataspinEventsList[i].ToString() + "\n";	
-			comboEventsBox.AddItem(dataspinEventsList[i].Name);
-		}
-		comboEventsButton.interactable = true;
-	}
-
 	private void OnErrorOccured(DataspinError error) {
 		logText.text = error.ToString();
 		
@@ -179,9 +166,6 @@ public class DataspinExample : MonoBehaviour {
 				// Do something
 				break;
 			case(DataspinRequestMethod.Dataspin_RegisterOldSession):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_GetCustomEvents):
 				// Do something
 				break;
 			case(DataspinRequestMethod.Dataspin_GetItems):

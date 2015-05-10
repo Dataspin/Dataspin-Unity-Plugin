@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Dataspin {
+
+	//This class is now obsolete, there is no need of fetching customevents from server anymore
+	//
 	[System.Serializable]
 	public class DataspinCustomEvent {
 		private string name;

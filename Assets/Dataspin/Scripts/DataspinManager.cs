@@ -99,11 +99,19 @@ namespace Dataspin {
         private bool isAdIdRetrieved;
         private bool isDeviceRegistered;
         private bool isUserRegistered;
+        private bool isSessionInvalidated;
         private int lastActivityTimestamp;
         private int sessionId;
 
         public bool isSessionStarted;
         public int sessionTimestamp;
+
+        public int LastActivityTimestamp {
+            get { return lastActivityTimestamp; }
+            set {
+                lastActivityTimestamp = value;
+            }
+        }
 
         public string Device_UUID {
             get { return device_uuid; }
@@ -200,11 +208,7 @@ namespace Dataspin {
                     parameters.Add("device", GetDevice());
                     parameters.Add("uuid", GetDeviceId());
 
-                    if(ad_id != "" && ad_id != null) parameters.Add("ads_id", ad_id);
-                    else {
-                        if(advertisingId != null && advertisingId != "") parameters.Add("ads_id", advertisingId);
-                    }
-
+                    if(ad_id != "") parameters.Add("ads_id", ad_id);
                     if(notification_id != "") parameters.Add("notification_id", notification_id);
 
                     CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterUserDevice, HttpRequestMethod.HttpMethod_Post, parameters));
@@ -289,10 +293,12 @@ namespace Dataspin {
                 parameters.Add("connectivity_type", (int) GetConnectivity());
 
                 #if UNITY_ANDROID && !UNITY_EDITOR
-                        parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
+                    parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
                 #else
                     parameters.Add("carrier_name", carrier_name);
                 #endif
+
+                DataspinBacklog.Instance.StopBacklogRefresh();
 
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_EndSession, HttpRequestMethod.HttpMethod_Post, parameters));
             }
@@ -301,59 +307,57 @@ namespace Dataspin {
             }
         }
 
-        public void RegisterCustomEvent(string custom_event, string extraData = null, int forced_sess_id = -1) {
-            if(isSessionStarted || sessionId == -1) {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("custom_event", custom_event);
-                parameters.Add("end_user_device", this.device_uuid);
-                parameters.Add("app_version", CurrentConfiguration.AppVersion);
+        [Obsolete("GetCustomEvents is deprecated as you no longer need to fetch events from server. Now you can simply call RegisterEvent(string event_id)")]
+        public void GetCustomEvents() {
 
-                if(extraData != null) parameters.Add("data", extraData);
+        }
 
-                if(forced_sess_id == -1) parameters.Add("session", SessionId);
-                else parameters.Add("session", forced_sess_id);
+        public void RegisterCustomEvent(string custom_event, string extraData = "", int forced_sess_id = -1) {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("custom_event", custom_event);
+            parameters.Add("end_user_device", this.device_uuid);
+            parameters.Add("app_version", CurrentConfiguration.AppVersion);
 
+            if(extraData != "") parameters.Add("data", extraData);
+
+            if(forced_sess_id == -1) parameters.Add("session", SessionId);
+            else parameters.Add("session", forced_sess_id);
+
+            if(isSessionStarted || isSessionInvalidated) {
+                if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
+                DataspinBacklog.Instance.PutRequestOnBacklog(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
 
         public void PurchaseItem(string internal_id, int amount = 1, int forced_sess_id = -1) {
-            if(isSessionStarted || sessionId == -1) {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
-                parameters.Add("end_user_device", this.device_uuid);
-                parameters.Add("app_version", CurrentConfiguration.AppVersion);
-                parameters.Add("amount", amount);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
+            parameters.Add("end_user_device", this.device_uuid);
+            parameters.Add("app_version", CurrentConfiguration.AppVersion);
+            parameters.Add("amount", amount);
 
-                if(forced_sess_id == -1) parameters.Add("session", SessionId);
-                else parameters.Add("session", forced_sess_id);
+            if(forced_sess_id == -1) parameters.Add("session", SessionId);
+            else parameters.Add("session", forced_sess_id);
 
+            if(isSessionStarted || isSessionInvalidated) {
+                if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters));
             }
             else {
+                DataspinBacklog.Instance.PutRequestOnBacklog(new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters));
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
             }
         }
 
         public void GetItems() {
-            if(isSessionStarted || sessionId == -1) {
+            if(isSessionStarted || isSessionInvalidated) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters));
-            }
-            else {
-                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
-            }
-        }
-
-        public void GetCustomEvents() {
-            if(isSessionStarted || sessionId == -1) {
-                Dictionary<string, object> parameters = new Dictionary<string, object>();
-                parameters.Add("app_version", CurrentConfiguration.AppVersion);
-                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetCustomEvents, HttpRequestMethod.HttpMethod_Get, parameters));
             }
             else {
                 dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
@@ -393,6 +397,7 @@ namespace Dataspin {
                             if(OnSessionStarted != null) OnSessionStarted();
                             this.sessionTimestamp = (int) GetTimestamp();
                             this.lastActivityTimestamp = (int) GetTimestamp();
+                            isSessionInvalidated = false;
                             DataspinBacklog.Instance.StopBacklogRefresh();
                             LogInfo("Session started!");
                             break;
@@ -435,16 +440,6 @@ namespace Dataspin {
                             if(OnItemsRetrieved != null) OnItemsRetrieved(dataspinItems);
                             break;
 
-                        case DataspinRequestMethod.Dataspin_GetCustomEvents:
-                            dataspinCustomEvents = new List<DataspinCustomEvent>();
-                            List<object> events = (List<object>) responseDict["results"];
-                            for(int i = 0; i < events.Count; i++) {
-                                Dictionary<string, object> eventDict = (Dictionary<string, object>) events[i];
-                                dataspinCustomEvents.Add(new DataspinCustomEvent(eventDict));
-                            }
-                            if(OnCustomEventsRetrieved != null) OnCustomEventsRetrieved(dataspinCustomEvents);
-                            break;
-
                         default:
                             break;
                     }
@@ -462,10 +457,22 @@ namespace Dataspin {
             Dictionary<string, object> dict = (Dictionary <string, object>) Json.Deserialize(json);
             json = json.Replace("\\","");
             json = json.Replace("\\\\","");
-            LogInfo("External task data received: "+json);
-            LogInfo("Response: "+dict["response"]);
             DataspinWebRequest task = SearchOnGoingTask((string)dict["pid"]);
-            task.ProcessResponse((string) dict["response"], dict.ContainsKey("error") ? (string) dict["error"] : null);
+            LogInfo("External task data received: "+json);
+
+            if(dict.ContainsKey("response")) {
+                LogInfo("Response: "+dict["response"]);
+                if(task != null) {
+                    task.ProcessResponse((string) dict["response"], dict.ContainsKey("error") ? (string) dict["error"] : null);
+                }
+                else {
+                    LogError("DataspinWebRequest for pid "+(string)dict["pid"]+" not found!");
+                }
+            }
+            else {
+                LogError("Task doesn't have response field!");
+                DataspinBacklog.Instance.PutRequestOnBacklog(task);
+            }
         }
 
         public void OnAdIdReceived(string adId) {
@@ -494,7 +501,7 @@ namespace Dataspin {
             return null;
         }
 
-        private void CreateTask(DataspinWebRequest request) {
+        public void CreateTask(DataspinWebRequest request) {
             //lastActivityTimestamp = GetTimestamp();
             OnGoingTasks.Add(request);
         }
@@ -507,7 +514,7 @@ namespace Dataspin {
             else {
                 LogInfo("Idle for more than " + currentConfiguration.sessionTimeout.ToString() + " sec, Invalidating session!");
                 isSessionStarted = false;
-                sessionId = -1; // Negative number indicates that session has been started and then has been invalidated
+                isSessionInvalidated = true;
                 StartSession();
                 return false;
             }
@@ -542,6 +549,7 @@ namespace Dataspin {
             return null;
         }
 
+        [Obsolete("DataspinCustomEvent class is now deprecated!")]
         public DataspinCustomEvent FindEventByName(string name) {
              for(int i = 0; i < dataspinCustomEvents.Count; i++) {
                 if(dataspinCustomEvents[i].Name == name) return dataspinCustomEvents[i];
@@ -759,9 +767,7 @@ namespace Dataspin {
         protected const string REGISTER_EVENT = "/api/{0}/register_event/";
         protected const string PURCHASE_ITEM = "/api/{0}/purchase/";
 
-        protected const string GET_EVENTS = "/api/{0}/custom_events/";
         protected const string GET_ITEMS = "/api/{0}/items/";
-        protected const string GET_PLATFORMS = "/api/{0}/platforms/";
 
         private const bool includeAuthHeader = false;
 
@@ -805,10 +811,6 @@ namespace Dataspin {
             return BaseUrl + System.String.Format(REGISTER_EVENT, API_VERSION);
         }
 
-        public virtual string GetEventsListURL() {
-            return BaseUrl + System.String.Format(GET_EVENTS, API_VERSION);
-        }
-
         public virtual string GetPurchaseItemURL() {
             return BaseUrl + System.String.Format(PURCHASE_ITEM, API_VERSION);
         }
@@ -849,8 +851,6 @@ namespace Dataspin {
                     return GetPurchaseItemURL();
                 case DataspinRequestMethod.Dataspin_GetItems:
                     return GetItemsURL();
-                case DataspinRequestMethod.Dataspin_GetCustomEvents:
-                    return GetEventsListURL();
                 case DataspinRequestMethod.Dataspin_RegisterOldSession:
                     return GetRegisterOldSessionURL();
                 default:
@@ -900,7 +900,6 @@ namespace Dataspin {
         Dataspin_RegisterEvent = 3,
         Dataspin_PurchaseItem = 4,
         Dataspin_GetItems = 5,
-        Dataspin_GetCustomEvents = 6,
         Dataspin_EndSession = 7,
         Dataspin_RegisterOldSession = 666
     }

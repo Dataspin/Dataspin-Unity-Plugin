@@ -26,7 +26,7 @@ namespace Dataspin {
 		private List<DataspinRequestMethod> backLogMethods;
 
 		private int pidCounter = 1;
-		private float timeUntilFlush = 1.0f;
+		private float timeUntilFlush = 0.5f;
 
 		private bool isOfflineSession;
 		private double offlineSessionStart;
@@ -125,12 +125,15 @@ namespace Dataspin {
 				oldSessionDataDict["length"] = (double) backlogSessionsList[i]["end_timestamp"] - (double) backlogSessionsList[i]["start_timestamp"];
 
 				try {
+					Log("Adding Offline session with fake id = " + (int)(long)backlogSessionsList[i]["fake_id"] + " to tasksArray");
 					tasksArray[i] = new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterOldSession, 
 					HttpRequestMethod.HttpMethod_Post, oldSessionDataDict, 
 					(int)(long)backlogSessionsList[i]["fake_id"], (string) backlogSessionsList[i]["url"]);
+
+					DataspinManager.Instance.CreateTask(tasksArray[i]);
 				}
 				catch(Exception e) {
-					Debug.Log("Error while creating tasksArray: "+e.Message+", Stack: "+e.StackTrace);
+					Log("Error while creating tasksArray: "+e.Message+", \nStack: "+e.StackTrace);
 				}
 			}
 
@@ -142,9 +145,15 @@ namespace Dataspin {
 			// Assign this session id into all subrequests and then
 
 			for(int j = 0; j < backlogRequestsList.Count; j++) {
+
+				Dictionary<string,object> dict = (Dictionary<string, object>) backlogRequestsList[j]["post_data"];
+				if(dict.ContainsKey("end_user_device")) dict["end_user_device"] = DataspinManager.Instance.Device_UUID; //Replace device uuid with proper one in case when user played offline his first session
+
 				tasksArray[j + backlogSessionsList.Count] = new DataspinWebRequest( (DataspinRequestMethod) (int)(long)backlogRequestsList[j]["dataspin_method"],
 					(HttpRequestMethod)(int)(long) backlogRequestsList[j]["http_method"], (Dictionary<string, object>) backlogRequestsList[j]["post_data"], 
 					(int)(long) backlogRequestsList[j]["task_pid"], (string) backlogRequestsList[j]["url"]);
+
+				DataspinManager.Instance.CreateTask(tasksArray[j + backlogSessionsList.Count]);
 			}
 
 			Log("TasksArray Length: "+tasksArray.Length);
@@ -159,7 +168,6 @@ namespace Dataspin {
 			if(tasksArray.Length > tasksListIterator) {
 				Log("Executing next task from queue: "+tasksArray[tasksListIterator].ToString());
 				DataspinWebRequest req = tasksArray[tasksListIterator];
-				//req.PostData["dt"] = (int)req.PostData["dt"];
 				req.Fire();
 			}
 			else {
@@ -217,6 +225,7 @@ namespace Dataspin {
 			backlogSessionsList.Add(currentSession);
 
 			DataspinManager.Instance.isSessionStarted = true;
+			DataspinManager.Instance.LastActivityTimestamp = (int) GetTimestamp();
 
 			ResetFlushTimer();
 
@@ -319,7 +328,7 @@ namespace Dataspin {
 		}
 
 		private void ResetFlushTimer() {
-			Log("Resetting flush timer, flush in 1.0 seconds!");
+			Log("Resetting flush timer, flush in "+timeUntilFlush.ToString("f2")+" seconds!");
 			StopCoroutine("FlushTimer");
 			StartCoroutine("FlushTimer");
 		}
@@ -327,7 +336,7 @@ namespace Dataspin {
 		IEnumerator FlushTimer() {
 			float startTime = Time.realtimeSinceStartup;
 			while(startTime + timeUntilFlush > Time.realtimeSinceStartup) {
-				yield return new WaitForSeconds(0.25f);
+				yield return new WaitForSeconds(0.1f);
 			}
 			Flush();
 		}
