@@ -150,27 +150,27 @@ namespace Dataspin {
 
 			#else
 
-				if(Application.internetReachability != NetworkReachability.NotReachable) {
-					yield return this.www;
-					#if UNITY_5
-						ProcessResponse(this.www.text, this.www.error);
-					#else
-						if(www.error == null) ProcessResponse(this.www.text, null);
-						else ProcessResponse(null, this.www.error);
-					#endif
-				}
-				else {
-					DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE,
-						"Internet not reachable", "-", this));
+			if(Application.internetReachability != NetworkReachability.NotReachable) {
+				yield return this.www;
+				#if UNITY_5
+					ProcessResponse(this.www.text, this.www.error);
+				#else
+					if(www.error == null) ProcessResponse(this.www.text, null);
+					else ProcessResponse(null, this.www.error);
+				#endif
+			}
+			else {
+				DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.INTERNET_NOTREACHABLE,
+					"Internet not reachable", "-", this));
 
-					if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, false);
-					else {
-						if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
-							Log("Internet unreachable - Putting request on tape: "+this.ToString());
-							DataspinBacklog.Instance.PutRequestOnBacklog(this);
-						}
+				if(taskPid != 0) DataspinBacklog.Instance.ReportTaskCompletion(this, false);
+				else {
+					if(DataspinBacklog.Instance.ShouldPutMethodOnBacklog(this.dataspinMethod)) {
+						Log("Internet unreachable - Putting request on tape: "+this.ToString());
+						DataspinBacklog.Instance.PutRequestOnBacklog(this);
 					}
 				}
+			}
 			#endif
 		}
 
@@ -220,7 +220,7 @@ namespace Dataspin {
 
 		public override string ToString() {
 			return "Request Type: "+dataspinMethod.ToString() + ", URL: "+ this.url +", HTTP: "+httpMethod.ToString() +
-			", PostData: "+ this.stringPostData + ", header: " + DataspinManager.Instance.GetAuthHeader().ToString();
+			", PostData: "+ this.stringPostData + ", header: " + DataspinManager.Instance.GetStringAuthHeader();
 		}
 	}
 }

@@ -531,7 +531,23 @@
 			"file": "Assets/Dataspin/Scripts/DataspinManager.cs",
 			"settings":
 			{
-				"buffer_size": 40245,
+				"buffer_size": 40564,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Assets/Dataspin/Scripts/DataspinWebRequest.cs",
+			"settings":
+			{
+				"buffer_size": 7191,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Plugins/Android/AndroidManifest.xml",
+			"settings":
+			{
+				"buffer_size": 6297,
 				"line_ending": "Unix"
 			}
 		}
@@ -602,7 +618,10 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin"
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin",
+		"/Users/rafal/Unity Projects/Dataspin_2.0-Unity-Plugin/Assets/Dataspin/Scripts"
 	],
 	"file_history":
 	[
@@ -737,7 +756,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 54.0
 	},
 	"find_in_files":
 	{
@@ -926,7 +945,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -942,8 +961,8 @@
 						"selection":
 						[
 							[
-								396,
-								396
+								61,
+								61
 							]
 						],
 						"settings":
@@ -955,7 +974,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -964,15 +983,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 40245,
+						"buffer_size": 40564,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7461,
-								7461
+								14042,
+								14054
 							]
 						],
 						"settings":
@@ -981,11 +1000,70 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
+						"translation.x": 3.0,
+						"translation.y": 3633.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Assets/Dataspin/Scripts/DataspinWebRequest.cs",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 7191,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
 						"translation.x": 0.0,
-						"translation.y": 1941.0,
+						"translation.y": 860.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/rafal/Dropbox/voxel/voxelRushNewMultiLibs/cloud/Assets/Plugins/Android/AndroidManifest.xml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6297,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5549,
+								5549
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 266.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
