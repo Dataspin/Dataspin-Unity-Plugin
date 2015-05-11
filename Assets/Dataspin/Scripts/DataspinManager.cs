@@ -333,6 +333,25 @@ namespace Dataspin {
             }
         }
 
+        public void RegisterCustomEvent(string custom_event, Dictionary<string, object> extraData = null) {
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            parameters.Add("custom_event", custom_event);
+            parameters.Add("end_user_device", this.device_uuid);
+            parameters.Add("app_version", CurrentConfiguration.AppVersion);
+            parameters.Add("session", SessionId);
+
+            if(extraData != null) parameters.Add("data", extraData);
+
+            if(isSessionStarted || isSessionInvalidated) {
+                if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
+                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
+            }
+            else {
+                DataspinBacklog.Instance.PutRequestOnBacklog(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
+                dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.SESSION_NOT_STARTED, "Session not started!"));
+            }
+        }
+
         public void PurchaseItem(string internal_id, int amount = 1, int forced_sess_id = -1) {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
