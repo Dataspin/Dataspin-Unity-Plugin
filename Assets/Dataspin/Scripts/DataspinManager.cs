@@ -393,11 +393,12 @@ namespace Dataspin {
 
                         case DataspinRequestMethod.Dataspin_StartSession:
                             isSessionStarted = true;
-                            sessionId = (int)(long) responseDict["id"];
-                            if(OnSessionStarted != null) OnSessionStarted();
                             this.sessionTimestamp = (int) GetTimestamp();
                             this.lastActivityTimestamp = (int) GetTimestamp();
                             isSessionInvalidated = false;
+                            sessionId = (int)(long) responseDict["id"];
+
+                            if(OnSessionStarted != null) OnSessionStarted();
                             DataspinBacklog.Instance.StopBacklogRefresh();
                             LogInfo("Session started!");
                             break;
@@ -427,7 +428,7 @@ namespace Dataspin {
 
                         case DataspinRequestMethod.Dataspin_RegisterEvent:
                             if(OnEventRegistered != null) OnEventRegistered((string)request.PostData["custom_event"]);
-                            LogInfo("Event "+ (string) request.PostData["custom_event"] +"registered!");
+                            LogInfo("Event "+ (string) request.PostData["custom_event"] +" registered!");
                             break;
 
                         case DataspinRequestMethod.Dataspin_GetItems:
@@ -563,7 +564,7 @@ namespace Dataspin {
         private Dictionary<string, object> GetDevice() {
             Dictionary<string, object> deviceDictionary = new Dictionary<string, object>();
             deviceDictionary.Add("manufacturer", GetDeviceManufacturer());
-            deviceDictionary.Add("model", SystemInfo.deviceModel);
+            deviceDictionary.Add("model", GetDeviceModel());
             deviceDictionary.Add("screen_width", Screen.width);
             deviceDictionary.Add("screen_height", Screen.height);
             deviceDictionary.Add("dpi", Screen.dpi.ToString("f0"));
@@ -582,6 +583,20 @@ namespace Dataspin {
             catch(Exception e) {
                 LogInfo("Couldn't determine device manufacturer, probably space in SystemInfo.deviceModel missing. Message: "+e.Message);
                 return "Unknown";
+            }
+        }
+
+        private string GetDeviceModel() {
+            #if UNITY_IPHONE
+                return SystemInfo.deviceModel;
+            #endif
+
+            try {
+                return SystemInfo.deviceModel.Substring(SystemInfo.deviceModel.IndexOf(' ')+1, SystemInfo.deviceModel.Length-SystemInfo.deviceModel.IndexOf(' ')-1);
+            }
+            catch(Exception e) {
+                LogInfo("Couldn't determine device model, probably space in SystemInfo.deviceModel missing. Message: "+e.Message);
+                return SystemInfo.deviceModel;
             }
         }
 

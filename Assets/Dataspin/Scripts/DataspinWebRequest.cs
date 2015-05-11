@@ -220,7 +220,7 @@ namespace Dataspin {
 
 		public override string ToString() {
 			return "Request Type: "+dataspinMethod.ToString() + ", URL: "+ this.url +", HTTP: "+httpMethod.ToString() +
-			", PostData: "+ this.stringPostData + ", header: " + DataspinManager.Instance.GetAuthHeader().ToString();
+			", PostData: "+ this.stringPostData + ", header: " + DataspinManager.Instance.GetStringAuthHeader();
 		}
 	}
 }
