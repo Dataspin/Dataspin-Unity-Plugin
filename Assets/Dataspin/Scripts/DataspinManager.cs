@@ -72,7 +72,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.45";
+        public const string version = "0.5";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -126,6 +126,7 @@ namespace Dataspin {
         public List<DataspinItem> dataspinItems;
         public List<DataspinCustomEvent> dataspinCustomEvents;
         public List<DataspinWebRequest> OnGoingTasks;
+        public List<String> logList;
 
         public List<DataspinItem> Items {
             get {
@@ -668,11 +669,35 @@ namespace Dataspin {
 
         public void LogInfo(string msg) {
             if(currentConfiguration.logDebug) Debug.Log(logTag + ": " + msg);
+
+            logList.Add(msg);
         }
 
         public void LogError(string msg) {
             if(currentConfiguration == null) currentConfiguration = getCurrentConfiguration();
             if(currentConfiguration.logDebug) Debug.LogError(logTag + ": " + msg);
+
+            logList.Add("[Error]: "+msg);
+        }
+
+        public void SendMailWithLogs() {
+            String str = "";
+            foreach(String logLine in logList) {
+                str += logLine + "\n";
+            }
+
+            String body = "Dataspin Unity SDK Log, Version "+version+", Configuration: "+this.currentConfiguration.ToString();
+            body += "\n";
+            body += "\n";
+            body += "------- Beginning of log -------\n";
+            body += str;
+            body += "------- Ends of log -------";
+            body = WWW.EscapeURL(body);
+
+            String subject = WWW.EscapeURL("Dataspin Unity SDK Logs");
+
+
+            Application.OpenURL("mailto:rafal@hyperbees.com?subject="+subject+"&body="+body);
         }
 
         public void FireErrorEvent(DataspinError err) {

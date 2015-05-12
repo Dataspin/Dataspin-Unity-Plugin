@@ -291,6 +291,7 @@ namespace Dataspin {
 		#region Helpers
 		private void Log(string msg) {
 			if(DataspinManager.Instance.CurrentConfiguration.logDebug) Debug.Log(logTag + ": " + msg);
+			DataspinManager.Instance.logList.Add("[Backlog]: "+msg);
 		}
 
 		private int GetIdFromResponse(string text) {

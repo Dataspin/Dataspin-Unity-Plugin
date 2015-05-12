@@ -14,6 +14,7 @@ public class DataspinExample : MonoBehaviour {
 	public Text nameText;
 	public Text surnameText;
 	public Text emailText;
+	public Text sessionsCounter;
 
 	public InputField itemAmountField;
 	public InputField customEventId;
@@ -24,6 +25,8 @@ public class DataspinExample : MonoBehaviour {
 
 	public Button startSessionButton;
 	public GameObject sessionActions;
+
+	private int sessionsCount;
 
 	private void OnEnable() { //Subscribe to desired events
 		DataspinManager.OnUserRegistered += OnUserRegistered;
@@ -116,6 +119,8 @@ public class DataspinExample : MonoBehaviour {
 	}
 
 	private void OnSessionStarted() {
+		sessionsCount++;
+		sessionsCounter.text = "Sessions Count: "+sessionsCount.ToString();
 		statusText.text = "Session Started - All OK";
 		sessionActions.SetActive(true);
 	}
@@ -146,31 +151,35 @@ public class DataspinExample : MonoBehaviour {
 	private void OnErrorOccured(DataspinError error) {
 		logText.text = error.ToString();
 		
-		switch(error.Request.DataspinMethod) {
-			case(DataspinRequestMethod.Dataspin_StartSession):
-				// Do something
+		if(error.Request.DataspinMethod != null) {
+			switch(error.Request.DataspinMethod) {
+				case(DataspinRequestMethod.Dataspin_StartSession):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_EndSession):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_RegisterEvent):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_PurchaseItem):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_RegisterUser):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_RegisterUserDevice):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_RegisterOldSession):
+					// Do something
+					break;
+				case(DataspinRequestMethod.Dataspin_GetItems):
+					// Do something
+					break;
+				default:
 				break;
-			case(DataspinRequestMethod.Dataspin_EndSession):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_RegisterEvent):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_PurchaseItem):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_RegisterUser):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_RegisterUserDevice):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_RegisterOldSession):
-				// Do something
-				break;
-			case(DataspinRequestMethod.Dataspin_GetItems):
-				// Do something
-				break;
+			}
 		}
 		
 		switch(error.ErrorType) {
