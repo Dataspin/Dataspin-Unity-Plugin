@@ -255,7 +255,7 @@ namespace Dataspin {
                     #if UNITY_ANDROID && !UNITY_EDITOR
                         parameters.Add("carrier_name", helperInstance.Call<string>("GetCarrier", unityContext));
                     #else
-                        parameters.Add("carrier_name", carrier_name);
+                        if(carrier_name != "") parameters.Add("carrier_name", carrier_name);
                     #endif
 
 
@@ -271,6 +271,34 @@ namespace Dataspin {
             else {
                 LogInfo("No internet connection! Starting offline session...");
                 DataspinBacklog.Instance.CreateOfflineSession();
+            }
+        }
+
+        private void StartSendPingsCoroutine() {
+        	StopCoroutine("SendPingsCoroutine");
+        	StartCoroutine("SendPingsCoroutine");
+        }
+
+        IEnumerator SendPingsCoroutine() {
+        	yield return new WaitForSeconds( (CurrentConfiguration.sessionTimeout * 1.0f) / 1.5f);
+        	SendAlivePing();
+        }
+
+        public void SendAlivePing() {
+        	 if(Application.internetReachability != NetworkReachability.NotReachable) {
+                if(isDeviceRegistered && isSessionStarted) {
+                	Dictionary<string, object> parameters = new Dictionary<string, object>();
+            		parameters.Add("end_user_device", device_uuid);
+            		parameters.Add("app_version", CurrentConfiguration.AppVersion);
+
+            		CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_AlivePing, HttpRequestMethod.HttpMethod_Post, parameters));
+            	}
+            	else {
+            		LogInfo("Cannot send Alive report - session not started or device not registered!");
+            	}
+            }
+            else {
+            	LogInfo("Cannot send Alive report due to lack of internet connectivity!");
             }
         }
 
@@ -421,6 +449,8 @@ namespace Dataspin {
                             if(OnSessionStarted != null) OnSessionStarted();
                             DataspinBacklog.Instance.StopBacklogRefresh();
                             LogInfo("Session started!");
+
+                            StartSendPingsCoroutine();
                             break;
 
                         case DataspinRequestMethod.Dataspin_EndSession:
@@ -444,11 +474,13 @@ namespace Dataspin {
                                 OnItemPurchased(tempItem);
                                 LogInfo("Item "+ (string) request.PostData["item"] +" purchased.");
                             }
+                            StartSendPingsCoroutine();
                             break;
 
                         case DataspinRequestMethod.Dataspin_RegisterEvent:
                             if(OnEventRegistered != null) OnEventRegistered((string)request.PostData["custom_event"]);
                             LogInfo("Event "+ (string) request.PostData["custom_event"] +" registered!");
+                            StartSendPingsCoroutine();
                             break;
 
                         case DataspinRequestMethod.Dataspin_GetItems:
@@ -527,19 +559,19 @@ namespace Dataspin {
             OnGoingTasks.Add(request);
         }
 
-        public bool CheckSessionValidity() {
-            if(lastActivityTimestamp + currentConfiguration.sessionTimeout > GetTimestamp()) {
-                lastActivityTimestamp = (int) GetTimestamp(); // Update session last activity timestamp 
-                return true;
-            }
-            else {
-                LogInfo("Idle for more than " + currentConfiguration.sessionTimeout.ToString() + " sec, Invalidating session!");
-                isSessionStarted = false;
-                isSessionInvalidated = true;
-                StartSession();
-                return false;
-            }
-        }
+        // public bool CheckSessionValidity() {
+        //     if(lastActivityTimestamp + currentConfiguration.sessionTimeout > GetTimestamp()) {
+        //         lastActivityTimestamp = (int) GetTimestamp(); // Update session last activity timestamp 
+        //         return true;
+        //     }
+        //     else {
+        //         LogInfo("Idle for more than " + currentConfiguration.sessionTimeout.ToString() + " sec, Invalidating session!");
+        //         isSessionStarted = false;
+        //         isSessionInvalidated = true;
+        //         StartSession();
+        //         return false;
+        //     }
+        // }
 
         private void RemoveFromOnGoingTasks(DataspinWebRequest request) {
             OnGoingTasks.Remove(request);
@@ -825,6 +857,7 @@ namespace Dataspin {
         protected const string END_SESSION = "/api/{0}/end_session/";
         protected const string REGISTER_EVENT = "/api/{0}/register_event/";
         protected const string PURCHASE_ITEM = "/api/{0}/purchase/";
+        protected const string ALIVE_PING = "/api/{0}/alive/";
 
         protected const string GET_ITEMS = "/api/{0}/items/";
 
@@ -878,6 +911,10 @@ namespace Dataspin {
             return BaseUrl + System.String.Format(GET_ITEMS, API_VERSION);
         }
 
+        public virtual string GetAlivePingURL() {
+            return BaseUrl + System.String.Format(ALIVE_PING, API_VERSION);
+        }
+
         private string GetCurrentPlatform() {
             #if UNITY_EDITOR
                 return "Editor";
@@ -912,6 +949,8 @@ namespace Dataspin {
                     return GetItemsURL();
                 case DataspinRequestMethod.Dataspin_RegisterOldSession:
                     return GetRegisterOldSessionURL();
+                case DataspinRequestMethod.Dataspin_AlivePing:
+                    return GetAlivePingURL();
                 default:
                     DataspinManager.Instance.dataspinErrors.Add(new DataspinError(DataspinError.ErrorTypeEnum.CORRESPONDING_URL_MISSING,
                         "Corresponing URL Missing, please contact rafal@dataspin.io"));
@@ -960,6 +999,7 @@ namespace Dataspin {
         Dataspin_PurchaseItem = 4,
         Dataspin_GetItems = 5,
         Dataspin_EndSession = 7,
+        Dataspin_AlivePing = 8,
         Dataspin_RegisterOldSession = 666
     }
 

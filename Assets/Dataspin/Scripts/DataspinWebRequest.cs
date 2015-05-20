@@ -123,22 +123,24 @@ namespace Dataspin {
 
 			DataspinManager.Instance.LogInfo("Executing connection: "+this.ToString());
 
-			//If session has been just invalidated, wait until starting a new one. 
-			if( this.dataspinMethod == DataspinRequestMethod.Dataspin_StartSession || 
-				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUser || 
-				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUserDevice || 
-				this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterOldSession ) {
-				//Okay
-			}
-			else {
-				//Debug.Log("Session has to be verified... " + this.dataspinMethod.ToString());
+			// ! OFFLINE SESSION INVALIDATION HAS BEEN DEPRECATED
+			//
+			// //If session has been just invalidated, wait until starting a new one. 
+			// if( this.dataspinMethod == DataspinRequestMethod.Dataspin_StartSession || 
+			// 	this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUser || 
+			// 	this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterUserDevice || 
+			// 	this.dataspinMethod == DataspinRequestMethod.Dataspin_RegisterOldSession ) {
+			// 	//Okay
+			// }
+			// else {
+			// 	//Debug.Log("Session has to be verified... " + this.dataspinMethod.ToString());
 
-				if(!DataspinManager.Instance.CheckSessionValidity()) {
-					while(!DataspinManager.Instance.isSessionStarted) {
-						yield return new WaitForSeconds(0.1f);
-					}
-				}
-			}
+			// 	if(!DataspinManager.Instance.CheckSessionValidity()) {
+			// 		while(!DataspinManager.Instance.isSessionStarted) {
+			// 			yield return new WaitForSeconds(0.1f);
+			// 		}
+			// 	}
+			// }
 
 			//Re-assign sessionId in case when session has been invalidated and new ID has been assigned
 			this.postData["session"] = DataspinManager.Instance.SessionId;
