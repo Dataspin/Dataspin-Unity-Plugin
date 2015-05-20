@@ -493,6 +493,10 @@ namespace Dataspin {
                             if(OnItemsRetrieved != null) OnItemsRetrieved(dataspinItems);
                             break;
 
+                        case DataspinRequestMethod.Dataspin_AlivePing:
+                        	LogInfo("Alive request success!");
+                        	StartSendPingsCoroutine();
+
                         default:
                             break;
                     }
