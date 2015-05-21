@@ -496,6 +496,7 @@ namespace Dataspin {
                         case DataspinRequestMethod.Dataspin_AlivePing:
                         	LogInfo("Alive request success!");
                         	StartSendPingsCoroutine();
+                        	break;
 
                         default:
                             break;
