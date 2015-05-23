@@ -398,7 +398,7 @@ namespace Dataspin {
 
                 #if UNITY_ANDROID
                 if(signature == null) {
-                    LogError("In order to verify purchases you must provide both signature and payload parameter!")
+                    LogError("In order to verify purchases you must provide both signature and payload parameter!");
                 }
                 else PurchaseValidationSerializer.Add("signature", signature);
                 #endif
