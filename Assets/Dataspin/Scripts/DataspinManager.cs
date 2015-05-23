@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 //////////////////////////////////////////////////////////////////
 /// Dataspin SDK for Unity3D (Universal - works with all possible platforms)
-/// Version 0.49
+/// Version 0.52
 //////////////////////////////////////////////////////////////////
 
 namespace Dataspin {
@@ -72,7 +72,7 @@ namespace Dataspin {
 
 
         #region Properties & Variables
-        public const string version = "0.5";
+        public const string version = "0.52";
         public const string prefabName = "DataspinManager";
         public const string logTag = "[Dataspin]";
         private const string USER_UUID_PREFERENCE_KEY = "dataspin_user_uuid";
@@ -99,7 +99,6 @@ namespace Dataspin {
         private bool isAdIdRetrieved;
         private bool isDeviceRegistered;
         private bool isUserRegistered;
-        private bool isSessionInvalidated;
         private int lastActivityTimestamp;
         private int sessionId;
 
@@ -156,6 +155,7 @@ namespace Dataspin {
         public static event Action OnSessionEnded;
         public static event Action<string> OnEventRegistered;
         public static event Action<DataspinItem> OnItemPurchased;
+        public static event Action<string, bool> OnItemPurchaseVerification;
         public static event Action<List<DataspinItem>> OnItemsRetrieved;
         public static event Action<List<DataspinCustomEvent>> OnCustomEventsRetrieved;
 
@@ -352,7 +352,7 @@ namespace Dataspin {
             if(forced_sess_id == -1) parameters.Add("session", SessionId);
             else parameters.Add("session", forced_sess_id);
 
-            if(isSessionStarted || isSessionInvalidated) {
+            if(isSessionStarted) {
                 if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
             }
@@ -371,7 +371,7 @@ namespace Dataspin {
 
             if(extraData != null) parameters.Add("data", extraData);
 
-            if(isSessionStarted || isSessionInvalidated) {
+            if(isSessionStarted) {
                 if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_RegisterEvent, HttpRequestMethod.HttpMethod_Post, parameters));
             }
@@ -381,19 +381,49 @@ namespace Dataspin {
             }
         }
 
-        public void PurchaseItem(string internal_id, int amount = 1, int forced_sess_id = -1) {
+        // !Signature parameters is permitted only on Android Platform
+        public void PurchaseItem(string internal_id, int amount = 1, string payload = null, string signature = null) {
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            parameters.Add("item", internal_id); //FindItemByName(item_name).InternalId
+            parameters.Add("item", internal_id); //OR FindItemByName(item_name).InternalId
             parameters.Add("end_user_device", this.device_uuid);
             parameters.Add("app_version", CurrentConfiguration.AppVersion);
             parameters.Add("amount", amount);
+            parameters.Add("session", SessionId);
 
-            if(forced_sess_id == -1) parameters.Add("session", SessionId);
-            else parameters.Add("session", forced_sess_id);
+            // For now In-App purchase verification is available only for Android & iOS platform
+            #if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IPHONE)
+            if(payload != null) {
+                Dictionary<string, object> PurchaseValidationSerializer = new Dictionary<string, object>();
+                PurchaseValidationSerializer.Add("payload", payload);
 
-            if(isSessionStarted || isSessionInvalidated) {
+                #if UNITY_ANDROID
+                if(signature == null) {
+                    LogError("In order to verify purchases you must provide both signature and payload parameter!")
+                }
+                else PurchaseValidationSerializer.Add("signature", signature);
+                #endif
+
+                parameters.Add("validate_purchase", PurchaseValidationSerializer);
+            }
+            #endif
+
+            if(isSessionStarted) {
                 if(!isSessionStarted) DataspinBacklog.Instance.CreateOfflineSession();
-                CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters));
+
+                DataspinWebRequest r = new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters);
+
+                if(payload != null) {
+                    Dictionary<string, object> flags = new Dictionary<string, object>();
+                    flags.Add("validation", true);
+                    r.Flags = flags;
+
+                    // If signature parameter was not provided, ignore veryfing process
+                    #if UNITY_ANDROID || !UNITY_EDITOR
+                    if(signature == null) r.Flags = null;
+                    #endif
+                }
+
+                CreateTask(r);
             }
             else {
                 DataspinBacklog.Instance.PutRequestOnBacklog(new DataspinWebRequest(DataspinRequestMethod.Dataspin_PurchaseItem, HttpRequestMethod.HttpMethod_Post, parameters));
@@ -402,7 +432,7 @@ namespace Dataspin {
         }
 
         public void GetItems() {
-            if(isSessionStarted || isSessionInvalidated) {
+            if(isSessionStarted) {
                 Dictionary<string, object> parameters = new Dictionary<string, object>();
                 parameters.Add("app_version", CurrentConfiguration.AppVersion);
                 CreateTask(new DataspinWebRequest(DataspinRequestMethod.Dataspin_GetItems, HttpRequestMethod.HttpMethod_Get, parameters));
@@ -443,7 +473,6 @@ namespace Dataspin {
                             isSessionStarted = true;
                             this.sessionTimestamp = (int) GetTimestamp();
                             this.lastActivityTimestamp = (int) GetTimestamp();
-                            isSessionInvalidated = false;
                             sessionId = (int)(long) responseDict["id"];
 
                             if(OnSessionStarted != null) OnSessionStarted();
@@ -474,6 +503,12 @@ namespace Dataspin {
                                 OnItemPurchased(tempItem);
                                 LogInfo("Item "+ (string) request.PostData["item"] +" purchased.");
                             }
+                            
+                            if(responseDict.ContainsKey("is_valid") && request.Flags.ContainsKey("validation")) {
+                                LogInfo("OnItemPurchaseVerification");
+                                if(OnItemPurchaseVerification != null) OnItemPurchaseVerification((string) request.PostData["item"], (responseDict["is_valid"] == null || (bool) responseDict["is_valid"] == false) ? false : true);
+                            }
+
                             StartSendPingsCoroutine();
                             break;
 
@@ -560,7 +595,6 @@ namespace Dataspin {
         }
 
         public void CreateTask(DataspinWebRequest request) {
-            //lastActivityTimestamp = GetTimestamp();
             OnGoingTasks.Add(request);
         }
 

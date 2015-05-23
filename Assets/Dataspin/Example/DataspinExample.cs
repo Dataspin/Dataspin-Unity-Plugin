@@ -37,6 +37,7 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnItemPurchased += OnItemPurchased;
 		DataspinManager.OnItemsRetrieved += OnItemsRetrieved;
 		DataspinManager.OnErrorOccured += OnErrorOccured;
+		DataspinManager.OnItemPurchaseVerification += OnItemPurchaseVerification;
 	}
 
 	private void OnDisable() { //Unsubscribe after game quit/scene reload etc.
@@ -45,7 +46,10 @@ public class DataspinExample : MonoBehaviour {
 		DataspinManager.OnSessionStarted -= OnSessionStarted;
 		DataspinManager.OnItemsRetrieved -= OnItemsRetrieved;
 		DataspinManager.OnEventRegistered -= OnEventRegistered;
+		DataspinManager.OnEventRegistered -= OnEventRegistered;
+		DataspinManager.OnItemPurchased -= OnItemPurchased;
 		DataspinManager.OnErrorOccured -= OnErrorOccured;
+		DataspinManager.OnItemPurchaseVerification -= OnItemPurchaseVerification;
 	}
 
 	//On Start we Register User
@@ -136,6 +140,10 @@ public class DataspinExample : MonoBehaviour {
 
 	private void OnItemPurchased(DataspinItem item) {
 		Debug.Log("OnItemPurchased: "+item.ToString());
+	}
+
+	private void OnItemPurchaseVerification(string sku, bool isVerified) {
+		Debug.Log("Purchase "+sku+" verified? "+isVerified);
 	}
 
 	private void OnItemsRetrieved(List<DataspinItem> dataspinItemsList) {

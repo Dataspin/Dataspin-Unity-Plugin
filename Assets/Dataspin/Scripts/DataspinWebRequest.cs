@@ -20,6 +20,9 @@ namespace Dataspin {
 		private string responseBody;
 		private string responseError;
 
+		// For internal SDK use only
+		private Dictionary<string,object> internalFlags;
+
 		//Unique ID used for searching tasks after being executed on native layer
 		//Task is invoked in Unity layer ---> Task is sent to Android layer and there executed --> Sent back to Unity, searching for this particular DataspinWebRequest
 
@@ -66,6 +69,11 @@ namespace Dataspin {
 
 		public string Body {
 			get { return responseBody; }
+		}
+
+		internal Dictionary<string, object> Flags {
+			get { return internalFlags; }
+			set { internalFlags = value; Debug.Log("Flags added!"); }
 		}
 
 		public DataspinWebRequest (DataspinRequestMethod dataspinMethod, HttpRequestMethod httpMethod, Dictionary<string,object> postData = null, int taskPid = 0, string specialUrl = "-") {
