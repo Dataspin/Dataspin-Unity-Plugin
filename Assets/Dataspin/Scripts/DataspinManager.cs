@@ -504,7 +504,7 @@ namespace Dataspin {
                                 LogInfo("Item "+ (string) request.PostData["item"] +" purchased.");
                             }
                             
-                            if(responseDict.ContainsKey("is_valid") && request.Flags.ContainsKey("validation")) {
+                            if(responseDict.ContainsKey("is_valid") && request.Flags != null && request.Flags.ContainsKey("validation")) {
                                 LogInfo("OnItemPurchaseVerification");
                                 if(OnItemPurchaseVerification != null) OnItemPurchaseVerification((string) request.PostData["item"], (responseDict["is_valid"] == null || (bool) responseDict["is_valid"] == false) ? false : true);
                             }
